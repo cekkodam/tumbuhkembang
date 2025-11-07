@@ -1,0 +1,9 @@
+{
+  "version": 3,
+  "functions": {
+    "api/*.js": {
+      "maxDuration": 60,
+      "maxMemory": 1024
+    }
+  }
+}
