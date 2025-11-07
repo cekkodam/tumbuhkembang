@@ -1,11 +1,9 @@
 import formidable from "formidable";
 import fs from "fs";
-import OpenAI from "openai";
+import Replicate from "replicate";
 
 export const config = {
-  api: {
-    bodyParser: false,  // <--- WAJIB untuk upload file
-  },
+  api: { bodyParser: false }
 };
 
 export default async function handler(req, res) {
@@ -13,43 +11,48 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const form = new formidable.IncomingForm({ uploadDir: "/tmp", keepExtensions: true });
+  const form = formidable({ uploadDir: "/tmp", keepExtensions: true });
 
   form.parse(req, async (err, fields, files) => {
     try {
-      if (err) {
-        console.error("Formidable error:", err);
-        return res.status(500).json({ error: "Upload form parsing failed" });
-      }
+      if (err) return res.status(500).json({ error: "Parse upload failed" });
 
-      const file = files.file?.[0] || files.file;
-      const language = fields.language?.[0] || "auto";
+      const video = files.file;
+      const language = fields.language || "auto";
+      const translate = fields.translate || "none";
 
-      if (!file) return res.status(400).json({ error: "No file uploaded" });
-
-      const openai = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY,
+      const replicate = new Replicate({
+        auth: process.env.REPLICATE_API_TOKEN,
       });
 
-      const transcription = await openai.audio.transcriptions.create({
-        file: fs.createReadStream(file.filepath),
-        model: "gpt-4o-transcribe",
-        response_format: "srt",
-        language: language === "auto" ? undefined : language,
-      });
+      // upload video
+      const uploadResult = await replicate.files.upload(video.filepath);
 
-      const fileName = `${Date.now()}.srt`;
+      const output = await replicate.run(
+        "guillaumekln/faster-whisper:latest",
+        {
+          input: {
+            audio: uploadResult.url,
+            language: language === "auto" ? null : language,
+            task: translate !== "none" ? "translate" : "transcribe",
+            output_format: "srt"
+          }
+        }
+      );
+
+      const fileName = `sub-${Date.now()}.srt`;
       const savePath = `/tmp/${fileName}`;
-      fs.writeFileSync(savePath, transcription);
+
+      fs.writeFileSync(savePath, output);
 
       return res.status(200).json({
         success: true,
-        srt_url: `/api/download?file=${fileName}`,
+        srt_url: `/api/download?file=${fileName}`
       });
 
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ error: error.message });
+    } catch (e) {
+      console.error(e);
+      return res.status(500).json({ error: "SERVER FAILED: " + e.message });
     }
   });
 }
