@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Video Clipper 1 Menit</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        input, button { margin: 10px; padding: 10px; }
+        video { max-width: 100%; margin: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Video Clipper Otomatis (1 Menit)</h1>
+    <input type="url" id="videoUrl" placeholder="Masukkan link video (mis: https://example.com/video.mp4)">
+    <button onclick="loadAndClip()">Muat dan Potong Video</button>
+    <video id="videoPlayer" controls></video>
+    <a id="downloadLink" download="clip_1min.mp4" style="display:none;">Download Clip</a>
+    <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.6/dist/ffmpeg.min.js"></script>
+    <script src="script.js"></script>
+</body>
+  </html>
