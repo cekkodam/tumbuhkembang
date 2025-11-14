@@ -156,7 +156,7 @@
         <label for="tanggalLahir">Tanggal Lahir:</label>
         <input type="date" id="tanggalLahir" required>
 
-        <label for="usia">Usia (bulan):</label>
+        <label for="usia">Usia (tahun):</label>
         <input type="number" id="usia" min="0" required>
 
         <label for="tinggi">Tinggi (cm):</label>
@@ -252,7 +252,7 @@
 
             const textDiv = document.createElement('div');
             textDiv.innerHTML =
-                `<strong>${item.nama}</strong> (Usia: ${item.usia} bulan)
+                `<strong>${item.nama}</strong> (Usia: ${item.usia} tahun)
                  <br>Tinggi: ${item.tinggi} cm, Berat: ${item.berat} kg
                  <br>Perkembangan: ${item.perkembangan}`;
             li.appendChild(textDiv);
