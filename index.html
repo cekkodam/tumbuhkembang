@@ -5,23 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laporan Tumbuh Kembang Faresta</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Tambahan: Google Fonts untuk font yang bagus (Poppins) -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
     <style>
         body {
-            font-family: 'Poppins', Arial, sans-serif; /* Font modern untuk seluruh body */
+            font-family: 'Poppins', Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f4f4f4;
             color: #333;
         }
+
         header {
-            /* Edit: Background foto balita dengan overlay untuk kontras */
             background-image: url('https://source.unsplash.com/featured/?toddler,child');
             background-size: cover;
             background-position: center;
-            background-repeat: no-repeat;
-            height: 50vh; /* Tinggi header lebih besar untuk efek spanduk */
+            height: 60vh;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -31,31 +30,29 @@
             position: relative;
             padding: 20px;
         }
+
         header::before {
-            /* Overlay transparan untuk membuat teks lebih mudah dibaca */
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(76, 175, 80, 0.6); /* Overlay hijau transparan sesuai tema asli */
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(76, 175, 80, 0.6);
             z-index: 1;
         }
+
         header h1 {
-            font-size: 3rem; /* Ukuran font lebih besar dan bold */
+            font-size: 3rem;
             font-weight: 700;
             z-index: 2;
             position: relative;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.7); /* Shadow untuk efek modern */
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
         }
+
         header p {
             font-size: 1.2rem;
-            font-weight: 400;
             z-index: 2;
-            position: relative;
             text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
         }
+
         .container {
             max-width: 1200px;
             margin: 20px auto;
@@ -64,38 +61,42 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
+
         form {
             display: flex;
             flex-direction: column;
             gap: 15px;
         }
-        label {
-            font-weight: bold;
-        }
+
+        label { font-weight: bold; }
+
         input, textarea, button {
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 16px;
         }
+
         button {
             background-color: #4CAF50;
             color: white;
             cursor: pointer;
             transition: background 0.3s;
         }
-        button:hover {
-            background-color: #45a049;
-        }
+
+        button:hover { background-color: #45a049; }
+
         .chart-container {
             width: 100%;
             height: 400px;
             margin-top: 20px;
         }
+
         #dataList {
             list-style: none;
             padding: 0;
         }
+
         #dataList li {
             display: flex;
             align-items: center;
@@ -106,191 +107,194 @@
             border-radius: 8px;
             background: #f9f9f9;
         }
+
+        /* FOTO FIX — tidak terpotong */
         #dataList img {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 4px;
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            background: white;
+            border: 1px solid #ddd;
+            padding: 4px;
+            border-radius: 8px;
         }
+
         @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            form {
-                gap: 10px;
-            }
-            header h1 {
-                font-size: 2rem; /* Responsif: ukuran font lebih kecil di mobile */
-            }
-            header {
-                height: 40vh; /* Tinggi header lebih kecil di mobile */
-            }
+            .container { padding: 10px; }
+            header { height: 40vh; }
+            header h1 { font-size: 2rem; }
+
             #dataList li {
                 flex-direction: column;
                 align-items: flex-start;
             }
+
             #dataList img {
                 width: 100%;
                 height: auto;
-                max-height: 150px;
+                max-height: 200px;
             }
         }
     </style>
 </head>
+
 <body>
-    <header>
-        <h1>Laporan Tumbuh Kembang Faresta</h1>
-        <p>Website untuk memantau pertumbuhan Faresta.</p>
-    </header>
-    <div class="container">
-        <h2>Input Data Anak</h2>
-        <form id="dataForm">
-            <label for="nama">Nama Anak:</label>
-            <input type="text" id="nama" required>
 
-            <label for="tanggalLahir">Tanggal Lahir:</label>
-            <input type="date" id="tanggalLahir" required>
+<header>
+    <h1>Laporan Tumbuh Kembang Faresta</h1>
+    <p>Website untuk memantau pertumbuhan Faresta.</p>
+</header>
 
-            <label for="usia">Usia (bulan):</label>
-            <input type="number" id="usia" min="0" required>
+<div class="container">
 
-            <label for="tinggi">Tinggi (cm):</label>
-            <input type="number" id="tinggi" step="0.1" min="0" required>
+    <h2>Input Data Anak</h2>
 
-            <label for="berat">Berat (kg):</label>
-            <input type="number" id="berat" step="0.1" min="0" required>
+    <form id="dataForm">
+        <label for="nama">Nama Anak:</label>
+        <input type="text" id="nama" required>
 
-            <label for="perkembangan">Catatan Perkembangan:</label>
-            <textarea id="perkembangan" rows="4" placeholder="Contoh: Bisa berjalan, mulai bicara, dll."></textarea>
+        <label for="tanggalLahir">Tanggal Lahir:</label>
+        <input type="date" id="tanggalLahir" required>
 
-            <!-- Tambahan: Input untuk foto -->
-            <label for="foto">Foto Perkembangan (Opsional, max 5MB, format: JPG/PNG):</label>
-            <input type="file" id="foto" accept="image/*">
+        <label for="usia">Usia (bulan):</label>
+        <input type="number" id="usia" min="0" required>
 
-            <button type="submit">Simpan Data</button>
-        </form>
+        <label for="tinggi">Tinggi (cm):</label>
+        <input type="number" id="tinggi" step="0.1" min="0" required>
 
-        <h2>Grafik Pertumbuhan</h2>
-        <div class="chart-container">
-            <canvas id="growthChart"></canvas>
-        </div>
+        <label for="berat">Berat (kg):</label>
+        <input type="number" id="berat" step="0.1" min="0" required>
 
-        <h2>Data Tersimpan</h2>
-        <ul id="dataList"></ul>
-    </div>
+        <label for="perkembangan">Catatan Perkembangan:</label>
+        <textarea id="perkembangan" rows="4" placeholder="Contoh: Bisa berjalan, mulai bicara, dll."></textarea>
 
-    <script>
-        const form = document.getElementById('dataForm');
-        const dataList = document.getElementById('dataList');
-        const ctx = document.getElementById('growthChart').getContext('2d');
-        let data = JSON.parse(localStorage.getItem('anakData')) || [];
+        <label for="foto">Foto Perkembangan (Opsional):</label>
+        <input type="file" id="foto" accept="image/*">
 
-        // Fungsi untuk menyimpan data
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const nama = document.getElementById('nama').value;
-            const tanggalLahir = document.getElementById('tanggalLahir').value;
-            const usia = parseInt(document.getElementById('usia').value);
-            const tinggi = parseFloat(document.getElementById('tinggi').value);
-            const berat = parseFloat(document.getElementById('berat').value);
-            const perkembangan = document.getElementById('perkembangan').value;
-            const fotoInput = document.getElementById('foto');
+        <button type="submit">Simpan Data</button>
+    </form>
 
-            let fotoBase64 = null;
-            if (fotoInput.files.length > 0) {
-                const file = fotoInput.files[0];
-                // Validasi: Cek ukuran file (max 5MB) dan tipe
-                if (file.size > 5 * 1024 * 1024) {
-                    alert('Ukuran file terlalu besar! Maksimal 5MB.');
-                    return;
-                }
-                if (!file.type.startsWith('image/')) {
-                    alert('File harus berupa gambar (JPG/PNG)!');
-                    return;
-                }
-                // Konversi ke base64
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    fotoBase64 = event.target.result;
-                    data.push({ nama, tanggalLahir, usia, tinggi, berat, perkembangan, foto: fotoBase64 });
-                    localStorage.setItem('anakData', JSON.stringify(data));
-                    updateDisplay();
-                    form.reset();
-                };
-                reader.readAsDataURL(file);
-                return; // Tunggu reader selesai
+    <h2>Grafik Pertumbuhan</h2>
+    <div class="chart-container"><canvas id="growthChart"></canvas></div>
+
+    <h2>Data Tersimpan</h2>
+    <ul id="dataList"></ul>
+</div>
+
+<script>
+    const form = document.getElementById('dataForm');
+    const dataList = document.getElementById('dataList');
+    const ctx = document.getElementById('growthChart').getContext('2d');
+
+    let data = JSON.parse(localStorage.getItem('anakData')) || [];
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const nama = document.getElementById('nama').value;
+        const tanggalLahir = document.getElementById('tanggalLahir').value;
+        const usia = parseInt(document.getElementById('usia').value);
+        const tinggi = parseFloat(document.getElementById('tinggi').value);
+        const berat = parseFloat(document.getElementById('berat').value);
+        const perkembangan = document.getElementById('perkembangan').value;
+        const fotoInput = document.getElementById('foto');
+
+        let fotoBase64 = null;
+
+        if (fotoInput.files.length > 0) {
+            const file = fotoInput.files[0];
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Ukuran file terlalu besar! Maksimal 5MB.');
+                return;
             }
 
-            // Jika tidak ada foto, simpan tanpa foto
-            data.push({ nama, tanggalLahir, usia, tinggi, berat, perkembangan, foto: fotoBase64 });
-            localStorage.setItem('anakData', JSON.stringify(data));
-            updateDisplay();
-            form.reset();
-        });
+            if (!file.type.startsWith('image/')) {
+                alert('File harus berupa gambar!');
+                return;
+            }
 
-        // Fungsi untuk memperbarui tampilan
-        function updateDisplay() {
-            dataList.innerHTML = '';
-            const usiaLabels = [];
-            const tinggiData = [];
-            const beratData = [];
-
-            data.forEach(item => {
-                // Buat elemen li dengan gambar dan teks
-                const li = document.createElement('li');
-                const img = document.createElement('img');
-                if (item.foto) {
-                    img.src = item.foto;
-                    img.alt = 'Foto Perkembangan';
-                } else {
-                    img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjZGRkIi8+Cjx0ZXh0IHg9IjQwIiB5PSI0NSIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+VGFrIEFkYSBGb3RvPC90ZXh0Pgo8L3N2Zz4='; // Placeholder SVG
-                    img.alt = 'Tidak ada foto';
-                }
-                li.appendChild(img);
-
-                const textDiv = document.createElement('div');
-                textDiv.innerHTML = `<strong>${item.nama}</strong> (Usia: ${item.usia} bulan) - Tinggi: ${item.tinggi} cm, Berat: ${item.berat} kg.<br>Perkembangan: ${item.perkembangan}`;
-                li.appendChild(textDiv);
-
-                dataList.appendChild(li);
-
-                usiaLabels.push(item.usia);
-                tinggiData.push(item.tinggi);
-                beratData.push(item.berat);
-            });
-
-            // Update grafik
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: usiaLabels,
-                    datasets: [
-                        {
-                            label: 'Tinggi (cm)',
-                            data: tinggiData,
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        },
-                        {
-                            label: 'Berat (kg)',
-                            data: beratData,
-                            borderColor: 'rgba(153, 102, 255, 1)',
-                            backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        x: { title: { display: true, text: 'Usia (bulan)' } },
-                        y: { title: { display: true, text: 'Nilai' } }
-                    }
-                }
-            });
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                fotoBase64 = event.target.result;
+                data.push({ nama, tanggalLahir, usia, tinggi, berat, perkembangan, foto: fotoBase64 });
+                localStorage.setItem('anakData', JSON.stringify(data));
+                updateDisplay();
+                form.reset();
+            };
+            reader.readAsDataURL(file);
+            return;
         }
 
-        // Load data saat halaman dimuat
+        data.push({ nama, tanggalLahir, usia, tinggi, berat, perkembangan, foto: fotoBase64 });
+        localStorage.setItem('anakData', JSON.stringify(data));
         updateDisplay();
-    </script>
+        form.reset();
+    });
+
+    function updateDisplay() {
+        dataList.innerHTML = '';
+
+        const usiaLabels = [];
+        const tinggiData = [];
+        const beratData = [];
+
+        data.forEach(item => {
+            const li = document.createElement('li');
+
+            const img = document.createElement('img');
+            img.src = item.foto
+                ? item.foto
+                : "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9IiNlZWUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNlZWUiLz48dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtd2VpZ2h0PSI2MDAiIGZvbnQtc2l6ZT0iMTJwdCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzc3NyI+Tm8gSW1hZ2U8L3RleHQ+PC9zdmc+";
+
+            img.alt = "Foto Perkembangan";
+            li.appendChild(img);
+
+            const textDiv = document.createElement('div');
+            textDiv.innerHTML =
+                `<strong>${item.nama}</strong> (Usia: ${item.usia} bulan)
+                 <br>Tinggi: ${item.tinggi} cm, Berat: ${item.berat} kg
+                 <br>Perkembangan: ${item.perkembangan}`;
+            li.appendChild(textDiv);
+
+            dataList.appendChild(li);
+
+            usiaLabels.push(item.usia);
+            tinggiData.push(item.tinggi);
+            beratData.push(item.berat);
+        });
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: usiaLabels,
+                datasets: [
+                    {
+                        label: 'Tinggi (cm)',
+                        data: tinggiData,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)'
+                    },
+                    {
+                        label: 'Berat (kg)',
+                        data: beratData,
+                        borderColor: 'rgba(153, 102, 255, 1)',
+                        backgroundColor: 'rgba(153, 102, 255, 0.2)'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { title: { display: true, text: 'Usia (bulan)' } },
+                    y: { title: { display: true, text: 'Nilai' } }
+                }
+            }
+        });
+    }
+
+    updateDisplay();
+</script>
+
 </body>
 </html>
