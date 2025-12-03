@@ -66,8 +66,9 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,'Segoe 
     height: 100%;
     width: 300px; 
     object-fit: cover;
-    opacity: 0.6; 
+    opacity: 0.8; /* Slight increase in opacity */
     border-radius: 0 10px 10px 0;
+    mix-blend-mode: multiply; /* Optional: Adjust blending for color */
 }
 
 .field{margin-top:14px}
@@ -87,12 +88,23 @@ button.ghost:hover{background:var(--primary-bg)}
 .card-grid strong{font-size:15px}
 .card-grid .meta{color:var(--muted);font-size:13px;line-height:1.4}
 .data-small{font-size:13px;color:var(--muted)}
+.delete-btn {
+    background: var(--error);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    margin-top: 8px;
+    width: 100%;
+    transition: background .2s ease;
+}
+.delete-btn:hover { background: #cc3333; }
 
 /* --- Modal --- */
 .modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:200;background:#fff;padding:24px;border-radius:16px;box-shadow:0 20px 50px rgba(15,23,42,.25);width:360px;max-width:94vw;display:none;opacity:0;transition:opacity .3s ease, transform .3s ease}
 .modal.open{display:block;opacity:1;transform:translate(-50%,-50%)}
 .modal h4{margin:0 0 10px;font-size:18px}
-.modal #loginBlock, .modal #registerBlock { display: flex; flex-direction: column; gap: 8px;} /* Added flex layout for better spacing */
+.modal #loginBlock, .modal #registerBlock { display: flex; flex-direction: column; gap: 8px;} 
 
 /* --- Chart --- */
 .chart-box{height:300px;margin-top:10px}
@@ -101,7 +113,7 @@ button.ghost:hover{background:var(--primary-bg)}
 #toastContainer{position:fixed;top:20px;right:20px;z-index:1000}
 .toast{background:var(--card);color:#333;padding:12px 18px;border-radius:8px;box-shadow:0 6px 16px rgba(0,0,0,0.15);margin-bottom:10px;display:flex;align-items:center;gap:12px;opacity:0;transform:translateX(100%);transition:opacity .3s ease, transform .3s ease}
 .toast.show{opacity:1;transform:translateX(0)}
-.toast.success{border-left:5px solid var(--success);color:#1f2937} /* Keep text dark */
+.toast.success{border-left:5px solid var(--success);color:#1f2937} 
 .toast.error{border-left:5px solid var(--error);color:#1f2937}
 .toast.info{border-left:5px solid var(--primary);color:#1f2937}
 .toast .icon{font-size:20px;line-height:1;margin-top:-2px}
@@ -158,7 +170,7 @@ button.ghost:hover{background:var(--primary-bg)}
       <div class="banner" id="banner">
         <div class="left">Ringkasan Perkembangan</div>
         <div class="right">Data tersimpan lokal • Multi-user • Responsive</div>
-        <img class="banner-image" src="https://i.ibb.co/6y181rN/kids-playing-landscape-animation.gif" alt="Animasi anak bermain di taman" />
+        <img class="banner-image" src="images.jpeg" alt="Ilustrasi anak bermain perosotan" />
       </div>
 
       <div class="card" id="inputSection">
@@ -252,6 +264,38 @@ function calculateAge(birthDate) {
 
     // Ensure the result is non-negative
     return months > 0 ? months : 0;
+}
+
+// --- DELETE FUNCTION ---
+function deleteEntry(id) {
+    if (!currentUser || currentRole === 'admin') {
+        showToast('Aksi ditolak. Silakan login sebagai pengguna.', 'error');
+        return;
+    }
+    
+    const confirmation = confirm('Anda yakin ingin menghapus data ini? Aksi ini tidak dapat dibatalkan.');
+    if (!confirmation) {
+        return;
+    }
+
+    const users = getUsers();
+    let data = users[currentUser]?.data || [];
+    
+    // Find index of entry with matching ID (ID is the timestamp)
+    const initialLength = data.length;
+    data = data.filter(entry => entry.id !== id);
+    
+    if (data.length === initialLength) {
+        showToast('Data gagal ditemukan.', 'error');
+        return;
+    }
+
+    users[currentUser].data = data;
+    saveUsers(users);
+    
+    showToast('Data berhasil dihapus', 'success');
+    renderList();
+    renderChart();
 }
 
 // --- STORAGE & AUTH HELPERS ---
@@ -355,7 +399,17 @@ function renderList(){
   entries.slice().reverse().forEach(e=>{ 
     const d = document.createElement('div'); d.className = 'card-grid'; 
     const fotoSrc = e.foto||'data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"320\" height=\"180\" viewBox=\"0 0 320 180\"><rect width=\"100%\" height=\"100%\" fill=\"%23eef4ff\"/><text x=\"50%\" y=\"50%\" font-family=\"Inter\" font-size=\"24\" fill=\"%234f46e5\" text-anchor=\"middle\" dominant-baseline=\"middle\">No Photo</text></svg>';
-    d.innerHTML = `<img src="${fotoSrc}" alt="Foto ${e.nama}"><div class="info"><strong>${e.nama}</strong><div class="meta">${e.usia} bulan • ${e.tinggi} cm • ${e.berat} kg</div><div class="meta">${e.tanggalLahir||'Tgl. Tidak Ada'}</div><div style="margin-top:6px" class="data-small">${e.catatan||'Tidak ada catatan.'}</div></div>`; 
+    
+    // Add delete button with onClick event using the entry ID
+    d.innerHTML = `
+        <img src="${fotoSrc}" alt="Foto ${e.nama}">
+        <div class="info">
+            <strong>${e.nama}</strong>
+            <div class="meta">${e.usia} bulan • ${e.tinggi} cm • ${e.berat} kg</div>
+            <div class="meta">${e.tanggalLahir||'Tgl. Tidak Ada'}</div>
+            <div style="margin-top:6px" class="data-small">${e.catatan||'Tidak ada catatan.'}</div>
+            <button class="delete-btn" onclick="deleteEntry(${e.id})">🗑️ Hapus</button>
+        </div>`; 
     list.appendChild(d); 
   }); 
 }
@@ -481,12 +535,17 @@ function initListeners() {
     });
     
     // Sidebar and Modal Listeners (centralized)
+    // Sidebar:
     sidebarBtn.addEventListener('click', (e)=>{ e.stopPropagation(); if(sidebar.classList.contains('open')) closeSidebar(); else openSidebar(); });
     overlay.addEventListener('click', ()=>{ closeSidebar(); closeAuth(); });
     document.addEventListener('click', (e)=>{ if(!sidebar.contains(e.target) && !sidebarBtn.contains(e.target) && sidebar.classList.contains('open')) closeSidebar(); });
     document.getElementById('openAuth').addEventListener('click', (e)=>{ e.preventDefault(); openAuth('login'); closeSidebar(); });
+    
+    // Auth Modal Switches:
     document.getElementById('showRegister').addEventListener('click', ()=> openAuth('register'));
     document.getElementById('showLogin').addEventListener('click', ()=> openAuth('login'));
+    
+    // Auth Actions:
     document.getElementById('btnRegister').addEventListener('click', ()=>{
       const u = document.getElementById('regUser').value.trim(); const p = document.getElementById('regPass').value; if(!u||!p){ showToast('Isi username & password', 'error'); return; }
       const users = getUsers(); if(users[u]){ showToast('Username sudah ada', 'error'); return; }
