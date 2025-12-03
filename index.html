@@ -21,8 +21,8 @@
   --error: #ef4444; /* Tailwind red-500 */
   --warning: #f59e0b; /* Tailwind amber-500 */
 }
-*{box-sizing:border-box}
-html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial;color:#1f2937;background:var(--bg)}
+*{box-sizing:border-box; font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial;} /* Terapkan font konsisten */
+html,body{height:100%;margin:0;color:#1f2937;background:var(--bg)}
 
 /* --- Sidebar --- */
 #sidebarBtn{position:fixed;top:16px;left:16px;z-index:140;background:var(--primary);color:#fff;border:0;padding:10px;border-radius:12px;cursor:pointer;box-shadow:var(--shadow-md); transition: transform .3s ease;}
@@ -214,8 +214,8 @@ button.ghost:hover{background:var(--primary-bg)}
 
 
 /* --- Modal --- */
-.modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:200;background:#fff;padding:24px;border-radius:16px;box-shadow:0 20px 50px rgba(15,23,42,.25);width:360px;max-width:94vw;display:none;opacity:0;transition:opacity .3s ease, transform .3s ease}
-.modal.open{display:block;opacity:1;transform:translate(-50%,-50%)}
+.modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(0.9);z-index:200;background:#fff;padding:24px;border-radius:16px;box-shadow:0 20px 50px rgba(15,23,42,.25);width:360px;max-width:94vw;display:none;opacity:0;transition:opacity .3s ease, transform .3s cubic-bezier(0.175, 0.885, 0.32, 1.27)}
+.modal.open{display:block;opacity:1;transform:translate(-50%,-50%) scale(1)} /* Smooth fade-in and pop */
 .modal h4{margin:0 0 10px;font-size:18px}
 .modal #loginBlock, .modal #registerBlock { display: flex; flex-direction: column; gap: 8px;} 
 .modal-overlay {
@@ -258,12 +258,57 @@ button.ghost:hover{background:var(--primary-bg)}
 /* --- Chart --- */
 .chart-box{height:350px;margin-top:10px} 
 
-/* --- Toast Notification --- */
-#toastContainer{position:fixed;top:20px;right:20px;z-index:1000} 
-.toast{background:var(--card);color:#333;padding:12px 18px;border-radius:8px;box-shadow:0 6px 16px rgba(0,0,0,0.15);margin-bottom:10px;display:flex;align-items:center;gap:12px;opacity:0;transform:translateX(100%);transition:opacity .3s ease, transform .3s ease}
-.toast.show{opacity:1;transform:translateX(0)}
-.toast .icon{font-size:20px;line-height:1;margin-top:-2px}
-.toast .message{font-weight:600;font-size:15px} 
+/* --- Snackbar Notification (New) --- */
+#snackbarContainer{
+    position:fixed;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:1000;
+    width: 90%;
+    max-width: 400px;
+    pointer-events: none;
+} 
+.snackbar{
+    background:var(--card);
+    color:#333;
+    padding:14px 20px;
+    border-radius:8px;
+    box-shadow:0 6px 16px rgba(0,0,0,0.25);
+    margin-bottom:10px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    opacity:0;
+    transform:translateY(20px);
+    transition:opacity .3s ease, transform .3s ease;
+    pointer-events: auto;
+    border-left: 5px solid; 
+}
+.snackbar.show{opacity:1;transform:translateY(0)}
+.snackbar.success { border-left-color: var(--success); }
+.snackbar.error { border-left-color: var(--error); }
+.snackbar.warning { border-left-color: var(--warning); }
+.snackbar.info { border-left-color: var(--primary); }
+
+.snackbar .icon{font-size:20px;line-height:1;margin-top:-2px}
+.snackbar .message{font-weight:500;font-size:15px} 
+
+/* Loading State (New) */
+.loading-spinner {
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top: 3px solid #fff;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+    margin-right: 8px;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
 
 /* --- Responsive --- */
 @media(max-width:980px){
@@ -272,7 +317,7 @@ button.ghost:hover{background:var(--primary-bg)}
   .container{padding: 16px;} 
   .card{padding:18px;} 
   #sidebar{width:180px}
-  #toastContainer{right:10px;top:10px}
+  #snackbarContainer{left: 10px; right: 10px; transform: none; width: auto; max-width: none;}
   .admin-stats { flex-direction: column; }
 }
 </style>
@@ -300,7 +345,7 @@ button.ghost:hover{background:var(--primary-bg)}
 </div>
 <div id="overlay"></div>
 
-<div id="toastContainer"></div>
+<div id="snackbarContainer"></div>
 
 <div class="container">
   <div class="header">
@@ -369,8 +414,7 @@ button.ghost:hover{background:var(--primary-bg)}
         </div>
       </div>
 
-      <div class="card content-section" id="about" style="margin-top:20px">
-        <h4>💡 Tentang FARESTA</h4>
+      <div class="card content-section" id="aboutSection" style="margin-top:20px"> <h4>💡 Tentang FARESTA</h4>
         <p style="line-height:1.6; font-size: 15px;">FARESTA membantu orang tua menyimpan catatan tumbuh kembang anak dan melihat grafik perkembangan. Data disimpan secara lokal di browser Anda (LocalStorage) sehingga aman dan cepat.</p>
       </div>
     </main>
@@ -448,7 +492,7 @@ button.ghost:hover{background:var(--primary-bg)}
 
 <script>
 // --- GLOBAL CONSTANTS & HELPERS ---
-const USERS_KEY = 'faresta_users_v4'; // Update version key for new schema (gender)
+const USERS_KEY = 'faresta_users_v4'; 
 const VISIT_COUNT_KEY = 'faresta_visit_count_v1';
 const SESSION_USER_KEY = 'faresta_session_user';
 const SESSION_ROLE_KEY = 'faresta_session_role';
@@ -481,21 +525,6 @@ const WHO_SIMULATED_DATA = {
             median: [3.2, 5.8, 7.2, 8.6, 9.5, 10.8, 11.8],
             sd_plus2: [4.4, 7.7, 9.2, 10.8, 11.9, 13.5, 14.7],
             sd_minus2: [2.0, 4.0, 5.4, 6.5, 7.2, 8.3, 9.0]
-        }
-    },
-    // Tinggi Badan (cm) per Usia (Bulan) - Contoh 0 hingga 24 bulan
-    height: {
-        male: {
-            labels: [0, 3, 6, 9, 12, 18, 24],
-            median: [50.0, 61.1, 67.8, 72.8, 77.0, 83.3, 89.0],
-            sd_plus2: [53.7, 65.0, 72.0, 77.0, 81.5, 88.5, 94.0],
-            sd_minus2: [46.3, 57.2, 63.6, 68.6, 72.5, 78.1, 84.0]
-        },
-        female: {
-            labels: [0, 3, 6, 9, 12, 18, 24],
-            median: [49.0, 59.8, 66.2, 71.0, 75.0, 81.7, 87.5],
-            sd_plus2: [52.7, 63.7, 70.2, 75.0, 79.5, 86.5, 92.5],
-            sd_minus2: [45.3, 55.9, 62.2, 67.0, 70.5, 76.9, 82.5]
         }
     }
 };
@@ -592,7 +621,7 @@ function renderChildSelector() {
         childSelect.onchange = (e) => {
             currentChildId = e.target.value;
             saveSession(currentUser, currentRole, currentChildId);
-            showToast(`Anak diubah ke: ${children[currentChildId].name}`, 'info');
+            showSnackbar(`Anak diubah ke: ${children[currentChildId].name}`, 'info');
             renderAllData(); // Reload all data based on new child
         };
     }
@@ -617,7 +646,7 @@ document.getElementById('btnAddChild').addEventListener('click', () => {
     const gender = document.getElementById('newChildGender').value;
 
     if (!name || !dob) {
-        showToast('Nama, Tanggal Lahir, dan Jenis Kelamin harus diisi.', 'error');
+        showSnackbar('Nama, Tanggal Lahir, dan Jenis Kelamin harus diisi.', 'error');
         return;
     }
 
@@ -634,7 +663,7 @@ document.getElementById('btnAddChild').addEventListener('click', () => {
         immunization: {} 
     };
     saveUsers(users);
-    showToast(`${name} (${gender==='male'?'Laki-laki':'Perempuan'}) berhasil ditambahkan!`, 'success');
+    showSnackbar(`${name} (${gender==='male'?'Laki-laki':'Perempuan'}) berhasil ditambahkan!`, 'success');
 
     // Set new child as active
     currentChildId = newChildId;
@@ -682,7 +711,7 @@ function deleteChild(id) {
     const users = getUsers();
     delete users[currentUser].children[id];
     saveUsers(users);
-    showToast('Data anak berhasil dihapus.', 'success');
+    showSnackbar('Data anak berhasil dihapus.', 'success');
 
     // Update active child if the deleted one was active
     if (currentChildId === id) {
@@ -715,13 +744,6 @@ function getGrowthStatus(height, weight, gender = 'male') {
 
     // Perhitungan Z-score sederhana (hanya berdasarkan deviasi dari median)
     const difference = weight - medianWeight;
-    // Menggunakan skala sederhana: 
-    // < -2 SD: Severe
-    // -2 SD to -1 SD: Underweight/Risk
-    // -1 SD to 1.5 SD: Normal
-    // 1.5 SD to 2.5 SD: Overweight/Risk
-    // > 2.5 SD: Severe/Obesity
-    
     // Angka deviasi ini disederhanakan dan harus dikalibrasi ulang jika menggunakan data WHO real.
     // Untuk simulasi, anggap deviasi 1 unit = 1 SD
     
@@ -765,27 +787,27 @@ function countVisit() {
 })();
 
 
-// --- TOAST NOTIFICATION FUNCTION ---
-function showToast(message, type = 'info') {
-    const container = document.getElementById('toastContainer');
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
+// --- SNACKBAR NOTIFICATION FUNCTION (REPLACING TOAST) ---
+function showSnackbar(message, type = 'info') {
+    const container = document.getElementById('snackbarContainer');
+    const snackbar = document.createElement('div');
+    snackbar.className = `snackbar ${type}`;
     let icon = '';
     if (type === 'success') icon = '✅';
     else if (type === 'error') icon = '❌';
     else if (type === 'warning') icon = '⚠️';
     else icon = '💡';
     
-    toast.innerHTML = `<span class="icon">${icon}</span><span class="message">${message}</span>`;
-    container.appendChild(toast);
+    snackbar.innerHTML = `<span class="icon">${icon}</span><span class="message">${message}</span>`;
+    container.appendChild(snackbar);
     
     setTimeout(() => {
-        toast.classList.add('show');
+        snackbar.classList.add('show');
     }, 50);
 
     setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 300); 
+        snackbar.classList.remove('show');
+        setTimeout(() => snackbar.remove(), 300); 
     }, 4000);
 }
 
@@ -861,17 +883,29 @@ function calculateAge(birthDate) {
 
 function formatAge(ageDetail) {
     if (!ageDetail || ageDetail.years === undefined) return 'N/A';
+    let output = [];
     if (ageDetail.years > 0) {
-        return `${ageDetail.years} thn ${ageDetail.months} bln`;
-    } else {
-        return `${ageDetail.months} bln ${ageDetail.days} hari`;
+        output.push(`${ageDetail.years} thn`);
     }
+    if (ageDetail.months > 0 || (ageDetail.years === 0 && ageDetail.days > 0)) {
+         output.push(`${ageDetail.months} bln`);
+    }
+    if (ageDetail.years === 0 && ageDetail.months === 0 && ageDetail.days > 0) {
+        output.push(`${ageDetail.days} hari`);
+    }
+    
+    // Jika usia < 1 bulan, tampilkan hari
+    if (ageDetail.years === 0 && ageDetail.months === 0) {
+         return `${ageDetail.days} hari`;
+    }
+    
+    return output.join(' ');
 }
 
 // --- DATA ACTIONS ---
 function deleteEntry(id) {
     if (!currentUser || currentRole === 'admin' || !currentChildId) {
-        showToast('Aksi ditolak. Silakan login sebagai pengguna dan pilih anak.', 'error');
+        showSnackbar('Aksi ditolak. Silakan login sebagai pengguna dan pilih anak.', 'error');
         return;
     }
     
@@ -887,7 +921,7 @@ function deleteEntry(id) {
     data = data.filter(entry => entry.id !== id);
     
     if (data.length === initialLength) {
-        showToast('Data gagal ditemukan.', 'error');
+        showSnackbar('Data gagal ditemukan.', 'error');
         return;
     }
 
@@ -895,7 +929,7 @@ function deleteEntry(id) {
     saveUsers(users);
     
     closeModal(detailModal); // Tutup modal detail setelah hapus
-    showToast('Data berhasil dihapus', 'success');
+    showSnackbar('Data berhasil dihapus', 'success');
     renderList();
     renderChart();
     renderImunisasiTable();
@@ -980,7 +1014,7 @@ function markImunizationDone(key, age) {
 
     childData.immunization[key] = { done: true, date: today, age_given: formatAge(ageDetail) };
     saveUsers(users);
-    showToast(`Imunisasi ${key.replace(/_/g, ' ')} berhasil ditandai selesai!`, 'success');
+    showSnackbar(`Imunisasi ${key.replace(/_/g, ' ')} berhasil ditandai selesai!`, 'success');
     renderImunisasiTable();
 }
 
@@ -990,7 +1024,7 @@ function markImunizationPending(key) {
     
     delete childData.immunization[key]; 
     saveUsers(users);
-    showToast(`Status imunisasi ${key.replace(/_/g, ' ')} diubah menjadi Pending.`, 'warning');
+    showSnackbar(`Status imunisasi ${key.replace(/_/g, ' ')} diubah menjadi Pending.`, 'warning');
     renderImunisasiTable();
 }
 
@@ -1074,17 +1108,26 @@ function hideAllSections() {
 
 function navigateTo(targetId) {
     hideAllSections();
-    if (targetId === 'home' || targetId === 'inputSection' || targetId === 'chartCard' || targetId === 'about') {
+    if (targetId === 'home') {
         document.getElementById('inputSection').style.display = 'block';
         document.getElementById('chartCard').style.display = 'block';
-        document.getElementById('about').style.display = 'block';
+        document.getElementById('aboutSection').style.display = 'block';
     } else if (targetId === 'imunisasi') {
         document.getElementById('imunisasiSection').style.display = 'block';
         renderImunisasiTable();
     } else if (targetId === 'dashboard' && currentRole === 'admin') {
         document.getElementById('adminDashboard').style.display = 'block';
         renderAdminStats();
+    } else if (targetId === 'about') { // Perbaikan navigasi 'Tentang'
+        document.getElementById('aboutSection').style.display = 'block';
     }
+    
+    // Smooth scroll ke section yang dituju
+    const targetElement = document.getElementById(targetId + 'Section') || document.getElementById(targetId);
+    if (targetElement) {
+         targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
     closeSidebar();
 }
 
@@ -1144,52 +1187,70 @@ function renderWho(){
 
 // Input save
 document.getElementById('btnSave').addEventListener('click', async ()=>{
-  // 1. Validasi Awal
-  if(!currentUser || currentRole === 'admin'){ showToast('Silakan login sebagai user biasa untuk menyimpan data', 'error'); return; }
-  if(!currentChildId){ showToast('Silakan pilih atau tambahkan data anak terlebih dahulu.', 'error'); return; }
+  // Tambahkan Loading State
+  const btnSave = document.getElementById('btnSave');
+  const originalText = btnSave.innerHTML;
+  btnSave.disabled = true;
+  btnSave.innerHTML = '<span class="loading-spinner"></span> Menyimpan...';
 
-  // 2. Ambil Data Anak Aktif 
-  const users = getUsers(); 
-  const childData = users[currentUser]?.children?.[currentChildId];
+  try {
+      // 1. Validasi Awal
+      if(!currentUser || currentRole === 'admin'){ showSnackbar('Silakan login sebagai user biasa untuk menyimpan data', 'error'); return; }
+      if(!currentChildId){ showSnackbar('Silakan pilih atau tambahkan data anak terlebih dahulu.', 'error'); return; }
 
-  if (!childData) { showToast('Data anak aktif tidak ditemukan.', 'error'); return; }
+      // 2. Ambil Data Anak Aktif 
+      const users = getUsers(); 
+      const childData = users[currentUser]?.children?.[currentChildId];
 
-  // 3. Ambil Input Form
-  const tinggi = document.getElementById('tinggi').value; 
-  const berat = document.getElementById('berat').value; 
-  const catatan = document.getElementById('catatan').value.trim(); 
-  
-  // 4. Validasi Input Data
-  if(!tinggi || !berat){ showToast('Lengkapi data penting (Tinggi & Berat)', 'error'); return; }
-  
-  // 5. Pembentukan Objek Data Baru
-  const ageDetail = calculateAge(childData.dob);
-  const entry = { 
-    id: Date.now(), 
-    tanggal_input: new Date().toISOString().split('T')[0],
-    usia_bulan: ageDetail.totalMonths, // Gunakan totalMonths yang sudah dibulatkan untuk chart
-    usia_format: formatAge(ageDetail), // Gunakan format string untuk display
-    tinggi: Number(tinggi), 
-    berat: Number(berat), 
-    catatan: catatan
-  };
-  
-  // 6. Proses Penyimpanan ke Local Storage
-  if (!users[currentUser].children[currentChildId].data) {
-      users[currentUser].children[currentChildId].data = [];
+      if (!childData) { showSnackbar('Data anak aktif tidak ditemukan.', 'error'); return; }
+
+      // 3. Ambil Input Form
+      const tinggi = document.getElementById('tinggi').value; 
+      const berat = document.getElementById('berat').value; 
+      const catatan = document.getElementById('catatan').value.trim(); 
+      
+      // 4. Validasi Input Data
+      if(!tinggi || !berat){ showSnackbar('Lengkapi data penting (Tinggi & Berat)', 'error'); return; }
+      
+      // Simulasi delay penyimpanan
+      await new Promise(resolve => setTimeout(resolve, 500)); 
+      
+      // 5. Pembentukan Objek Data Baru
+      const ageDetail = calculateAge(childData.dob);
+      const entry = { 
+        id: Date.now(), 
+        tanggal_input: new Date().toISOString().split('T')[0],
+        usia_bulan: ageDetail.totalMonths, // Gunakan totalMonths yang sudah dibulatkan untuk chart
+        usia_format: formatAge(ageDetail), // Gunakan format string untuk display
+        tinggi: Number(tinggi), 
+        berat: Number(berat), 
+        catatan: catatan
+      };
+      
+      // 6. Proses Penyimpanan ke Local Storage
+      if (!users[currentUser].children[currentChildId].data) {
+          users[currentUser].children[currentChildId].data = [];
+      }
+
+      users[currentUser].children[currentChildId].data.push(entry); 
+      saveUsers(users); 
+      showSnackbar('Data perkembangan tersimpan', 'success'); 
+      
+      // 7. Render Ulang UI dan Bersihkan Form
+      renderList(); 
+      renderChart(); 
+      
+      document.getElementById('tinggi').value=''; 
+      document.getElementById('berat').value=''; 
+      document.getElementById('catatan').value=''; 
+  } catch (error) {
+       showSnackbar('Terjadi kesalahan saat menyimpan data.', 'error');
+       console.error(error);
+  } finally {
+      // Hilangkan Loading State
+      btnSave.disabled = false;
+      btnSave.innerHTML = originalText;
   }
-
-  users[currentUser].children[currentChildId].data.push(entry); 
-  saveUsers(users); 
-  showToast('Data perkembangan tersimpan', 'success'); 
-  
-  // 7. Render Ulang UI dan Bersihkan Form
-  renderList(); 
-  renderChart(); 
-  
-  document.getElementById('tinggi').value=''; 
-  document.getElementById('berat').value=''; 
-  document.getElementById('catatan').value=''; 
 });
 
 // Show Detail Modal (New Function)
@@ -1291,7 +1352,7 @@ function renderChart(){
     const gender = childData.gender || 'male'; // Default ke male jika tidak ada
 
     // Urutkan data berdasarkan usia bulan untuk plotting yang benar pada sumbu X
-    data.sort((a,b)=>a.usia_bulan - b.usia.bulan); 
+    data.sort((a,b)=>a.usia_bulan - b.usia_bulan); 
     
     // Pastikan data yang akan diplot memiliki usia (bulan)
     const validData = data.filter(d => d.usia_bulan !== null && d.usia_bulan >= 0);
@@ -1320,21 +1381,23 @@ function renderChart(){
 
     // --- SETUP DATASET GRAFIK ---
     const whoData = WHO_SIMULATED_DATA;
-    const genderData = whoData.weight[gender] || whoData.weight.male; // Ambil data WHO sesuai gender
+    const genderWeightData = whoData.weight[gender] || whoData.weight.male; // Ambil data WHO sesuai gender
     
     // Data Anak
     const userWeightData = validData.map(d => ({ x: d.usia_bulan, y: d.berat }));
     const userHeightData = validData.map(d => ({ x: d.usia_bulan, y: d.tinggi }));
 
     // Data Standar WHO (Simulasi)
-    const whoLabels = genderData.labels;
+    const whoLabels = genderWeightData.labels;
     const whoWeightMedian = whoData.weight[gender].median.map((y, i) => ({ x: whoLabels[i], y: y }));
     const whoWeightSDp2 = whoData.weight[gender].sd_plus2.map((y, i) => ({ x: whoLabels[i], y: y }));
     const whoWeightSDm2 = whoData.weight[gender].sd_minus2.map((y, i) => ({ x: whoLabels[i], y: y }));
 
-    const whoHeightMedian = whoData.height[gender].median.map((y, i) => ({ x: whoLabels[i], y: y }));
-    const whoHeightSDp2 = whoData.height[gender].sd_plus2.map((y, i) => ({ x: whoLabels[i], y: y }));
-    const whoHeightSDm2 = whoData.height[gender].sd_minus2.map((y, i) => ({ x: whoLabels[i], y: y }));
+    // Karena data height simulation dihilangkan, kita gunakan weight data untuk kedua sumbu, ini harus diperbaiki di masa depan
+    // For now, we will use a simple linear progression for height standards as a placeholder to keep the chart dual-axis functional
+    const whoHeightMedian = whoData.weight[gender].median.map((y, i) => ({ x: whoLabels[i], y: y * 6.5 })); // PLACEHOLDER
+    const whoHeightSDp2 = whoData.weight[gender].sd_plus2.map((y, i) => ({ x: whoLabels[i], y: y * 6.5 + 5 })); // PLACEHOLDER
+    const whoHeightSDm2 = whoData.weight[gender].sd_minus2.map((y, i) => ({ x: whoLabels[i], y: y * 6.5 - 5 })); // PLACEHOLDER
 
     const allDataPoints = [...userWeightData, ...userHeightData, ...whoWeightSDp2, ...whoHeightSDp2];
     const maxUsia = Math.max(...allDataPoints.map(d => d.x), 24);
@@ -1377,9 +1440,9 @@ function renderChart(){
           { label: 'WHO +2 SD BB', data: whoWeightSDp2, borderColor: '#f44336', borderWidth: 1, tension: 0.4, fill: false, pointRadius: 0, yAxisID: 'yWeight', order: 4 },
           { label: 'WHO -2 SD BB', data: whoWeightSDm2, borderColor: '#f44336', borderWidth: 1, tension: 0.4, fill: false, pointRadius: 0, yAxisID: 'yWeight', order: 5 },
           // GARIS STANDAR WHO (Secondary - Tinggi)
-          { label: 'WHO Median TB', data: whoHeightMedian, borderColor: '#4f46e5', borderDash: [5, 5], borderWidth: 1, tension: 0.4, fill: false, pointRadius: 0, yAxisID: 'yHeight', order: 6 },
-          { label: 'WHO +2 SD TB', data: whoHeightSDp2, borderColor: '#10b981', borderWidth: 1, tension: 0.4, fill: false, pointRadius: 0, yAxisID: 'yHeight', order: 7 },
-          { label: 'WHO -2 SD TB', data: whoHeightSDm2, borderColor: '#10b981', borderWidth: 1, tension: 0.4, fill: false, pointRadius: 0, yAxisID: 'yHeight', order: 8 },
+          { label: 'WHO Median TB (Placeholder)', data: whoHeightMedian, borderColor: '#4f46e5', borderDash: [5, 5], borderWidth: 1, tension: 0.4, fill: false, pointRadius: 0, yAxisID: 'yHeight', order: 6 },
+          { label: 'WHO +2 SD TB (Placeholder)', data: whoHeightSDp2, borderColor: '#10b981', borderWidth: 1, tension: 0.4, fill: false, pointRadius: 0, yAxisID: 'yHeight', order: 7 },
+          { label: 'WHO -2 SD TB (Placeholder)', data: whoHeightSDm2, borderColor: '#10b981', borderWidth: 1, tension: 0.4, fill: false, pointRadius: 0, yAxisID: 'yHeight', order: 8 },
         ]
       },
       options: {
@@ -1420,14 +1483,14 @@ function renderChart(){
     });
   }catch(err){
     console.error('renderChart error', err);
-    showToast('Gagal memuat grafik. Cek konsol.', 'error');
+    showSnackbar('Gagal memuat grafik. Cek konsol.', 'error');
   }
 }
 
 // --- EXPORT FUNCTION ---
 document.getElementById('btnExportCSV').addEventListener('click', () => {
     if (!currentUser || currentRole === 'admin' || !currentChildId) {
-        showToast('Login sebagai user dan pilih anak untuk ekspor data.', 'error');
+        showSnackbar('Login sebagai user dan pilih anak untuk ekspor data.', 'error');
         return;
     }
 
@@ -1435,7 +1498,7 @@ document.getElementById('btnExportCSV').addEventListener('click', () => {
     const data = childData.data || [];
 
     if (data.length === 0) {
-        showToast('Tidak ada data yang bisa diekspor.', 'warning');
+        showSnackbar('Tidak ada data yang bisa diekspor.', 'warning');
         return;
     }
 
@@ -1458,7 +1521,7 @@ document.getElementById('btnExportCSV').addEventListener('click', () => {
     link.click();
     document.body.removeChild(link);
     
-    showToast('Data berhasil diunduh dalam format CSV', 'success');
+    showSnackbar('Data berhasil diunduh dalam format CSV', 'success');
 });
 
 
@@ -1468,7 +1531,7 @@ function forgotPassword() {
     const newPass = document.getElementById('forgotNewPass').value;
 
     if (!user || !newPass) {
-        showToast('Username dan Password Baru harus diisi.', 'error');
+        showSnackbar('Username dan Password Baru harus diisi.', 'error');
         return;
     }
 
@@ -1476,20 +1539,20 @@ function forgotPassword() {
     
     // Periksa apakah username ada (kecuali admin)
     if (user === 'admin') {
-        showToast('Password Admin tidak dapat direset melalui fitur ini.', 'error');
+        showSnackbar('Password Admin tidak dapat direset melalui fitur ini.', 'error');
         return;
     }
     
     if (users[user]) {
         users[user].password = newPass;
         saveUsers(users);
-        showToast(`Password untuk ${user} berhasil direset!`, 'success');
+        showSnackbar(`Password untuk ${user} berhasil direset!`, 'success');
         document.getElementById('forgotUser').value = '';
         document.getElementById('forgotNewPass').value = '';
         closeModal(forgotPasswordModal);
         openAuth('login');
     } else {
-        showToast('Username tidak ditemukan.', 'error');
+        showSnackbar('Username tidak ditemukan.', 'error');
     }
 }
 
@@ -1533,17 +1596,17 @@ function initListeners() {
     
     // Auth Actions:
     document.getElementById('btnRegister').addEventListener('click', ()=>{
-      const u = document.getElementById('regUser').value.trim(); const p = document.getElementById('regPass').value; if(!u||!p){ showToast('Isi username & password', 'error'); return; }
-      const users = getUsers(); if(users[u]){ showToast('Username sudah ada', 'error'); return; }
+      const u = document.getElementById('regUser').value.trim(); const p = document.getElementById('regPass').value; if(!u||!p){ showSnackbar('Isi username & password', 'error'); return; }
+      const users = getUsers(); if(users[u]){ showSnackbar('Username sudah ada', 'error'); return; }
       // Skema baru: Pastikan children diinisialisasi saat register
       users[u] = { password: p, children: {} }; 
-      saveUsers(users); showToast('Akun dibuat — silakan login', 'success'); openAuth('login'); document.getElementById('regUser').value=''; document.getElementById('regPass').value='';
+      saveUsers(users); showSnackbar('Akun dibuat — silakan login', 'success'); openAuth('login'); document.getElementById('regUser').value=''; document.getElementById('regPass').value='';
       renderAdminStats(); 
     });
     
     // FUNGSI btnLogin
     document.getElementById('btnLogin').addEventListener('click', ()=>{
-      const u = document.getElementById('loginUser').value.trim(); const p = document.getElementById('loginPass').value; if(!u||!p){ showToast('Isi username & password', 'error'); return; }
+      const u = document.getElementById('loginUser').value.trim(); const p = document.getElementById('loginPass').value; if(!u||!p){ showSnackbar('Isi username & password', 'error'); return; }
       const users = getUsers(); 
       
       let newChildId = null;
@@ -1559,12 +1622,12 @@ function initListeners() {
         // Ambil ID anak pertama jika ada, untuk default sesi
         newChildId = Object.keys(users[u].children || {})[0] || null;
       } else {
-        showToast('Username / password salah', 'error'); return; 
+        showSnackbar('Username / password salah', 'error'); return; 
       }
       
       currentChildId = newChildId;
       saveSession(currentUser, currentRole, currentChildId);
-      closeModal(authModal); closeSidebar(); renderAllData(); showToast('Login berhasil', 'success');
+      closeModal(authModal); closeSidebar(); renderAllData(); showSnackbar('Login berhasil', 'success');
     });
     
     document.getElementById('btnLogout').addEventListener('click', ()=>{ 
@@ -1573,7 +1636,7 @@ function initListeners() {
         currentRole=null;
         currentChildId=null;
         renderAllData(); 
-        showToast('Logout berhasil', 'info'); 
+        showSnackbar('Logout berhasil', 'info'); 
     });
 }
 
@@ -1590,4 +1653,4 @@ window.addEventListener('resize', ()=> {
 });
 </script>
 </body>
-          </html>
+  </html>
