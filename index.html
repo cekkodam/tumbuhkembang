@@ -41,12 +41,12 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,'Segoe 
     margin:24px auto; 
     padding:16px;
 }
-/* PERBAIKAN FOKUS: Menghapus properti background white dari .card, dan memastikan teks di header jelas */
+/* HEADER: Memastikan latar belakang ungu dan teks putih */
 .header{
     background:linear-gradient(135deg,var(--primary),var(--primary-light));
     padding:28px;
     border-radius:16px;
-    color:#fff; /* Teks harus putih */
+    color:#fff; 
     display:flex;
     gap:20px;
     align-items:center;
@@ -61,7 +61,7 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,'Segoe 
     padding:20px; 
     border-radius:12px;
     box-shadow:var(--shadow-md);
-    border: 1px solid #e5e7eb; /* Tambah border halus untuk definisi */
+    border: 1px solid #e5e7eb; 
 }
 .card h4 {
     font-size: 18px; 
@@ -308,10 +308,40 @@ input[type="file"] {
 // --- GLOBAL CONSTANTS & HELPERS ---
 const USERS_KEY = 'faresta_users_v3';
 const VISIT_COUNT_KEY = 'faresta_visit_count_v1';
+// KEYS BARU UNTUK PERSISTENSI SESI
+const SESSION_USER_KEY = 'faresta_session_user';
+const SESSION_ROLE_KEY = 'faresta_session_role';
+
 const getUsers = ()=> JSON.parse(localStorage.getItem(USERS_KEY) || '{}');
 const saveUsers = u=> localStorage.setItem(USERS_KEY, JSON.stringify(u));
 let currentUser = null; 
 let currentRole = null; 
+
+// --- SESSION MANAGEMENT FUNCTIONS (PERBAIKAN UTAMA) ---
+
+// 1. Menyimpan status login ke Local Storage
+function saveSession(username, role) {
+    localStorage.setItem(SESSION_USER_KEY, username);
+    localStorage.setItem(SESSION_ROLE_KEY, role);
+}
+
+// 2. Menghapus status login dari Local Storage
+function clearSession() {
+    localStorage.removeItem(SESSION_USER_KEY);
+    localStorage.removeItem(SESSION_ROLE_KEY);
+}
+
+// 3. Memuat status login dari Local Storage
+function loadSession() {
+    const user = localStorage.getItem(SESSION_USER_KEY);
+    const role = localStorage.getItem(SESSION_ROLE_KEY);
+    if (user && role) {
+        currentUser = user;
+        currentRole = role;
+    }
+}
+// --- END SESSION MANAGEMENT ---
+
 
 // --- VISIT COUNTER ---
 function countVisit() {
@@ -470,7 +500,6 @@ function renderAuth(){
     document.getElementById('btnLogout').style.display='block'; 
     document.querySelectorAll('.menu-login').forEach(x=>x.style.display='none'); 
   } else { 
-    // PERBAIKAN: Tombol Login di Header disesuaikan agar terlihat jelas dengan latar ungu
     accountArea.innerHTML = '<button id="authHeaderBtn" style="background: white; color: var(--primary); font-weight: 700; padding: 8px 14px; border-radius: 6px; box-shadow: none;">Login</button>'; 
     document.getElementById('authHeaderBtn')?.addEventListener('click', (e)=>{ e.preventDefault(); openAuth('login'); }); 
     document.getElementById('btnLogout').style.display='none'; 
@@ -699,12 +728,25 @@ function initListeners() {
       const u = document.getElementById('loginUser').value.trim(); const p = document.getElementById('loginPass').value; if(!u||!p){ showToast('Isi username & password', 'error'); return; }
       const users = getUsers(); 
       if(u==='admin' && p==='admin123'){ 
-        currentUser='admin'; currentRole='admin'; closeAuth(); closeSidebar(); renderAuth(); renderList(); renderChart(); renderWho(); showToast('Login Admin berhasil', 'success'); return; 
+        currentUser='admin'; 
+        currentRole='admin'; 
+        saveSession(currentUser, currentRole); // <<< SIMPAN SESI
+        closeAuth(); closeSidebar(); renderAuth(); renderList(); renderChart(); renderWho(); showToast('Login Admin berhasil', 'success'); return; 
       }
       if(!users[u] || users[u].password !== p){ showToast('Username / password salah', 'error'); return; }
-      currentUser = u; currentRole = 'user'; closeAuth(); closeSidebar(); renderAuth(); renderList(); renderChart(); renderWho(); showToast('Login berhasil', 'success');
+      
+      currentUser = u; 
+      currentRole = 'user'; 
+      saveSession(currentUser, currentRole); // <<< SIMPAN SESI
+      closeAuth(); closeSidebar(); renderAuth(); renderList(); renderChart(); renderWho(); showToast('Login berhasil', 'success');
     });
-    document.getElementById('btnLogout').addEventListener('click', ()=>{ currentUser=null; currentRole=null; renderAuth(); renderList(); renderChart(); renderWho(); showToast('Logout berhasil', 'info'); });
+    
+    document.getElementById('btnLogout').addEventListener('click', ()=>{ 
+        clearSession(); // <<< HAPUS SESI
+        currentUser=null; 
+        currentRole=null; 
+        renderAuth(); renderList(); renderChart(); renderWho(); showToast('Logout berhasil', 'info'); 
+    });
     
     // Admin Link Handler:
     document.getElementById('adminLink').addEventListener('click', (e)=>{
@@ -719,6 +761,7 @@ function initListeners() {
 
 // initial load and setup
 document.addEventListener('DOMContentLoaded', () => {
+    loadSession(); // <<< MEMUAT SESI DARI LOCAL STORAGE SAAT HALAMAN DIMUAT
     initListeners();
     renderAuth(); 
     renderWho(); 
@@ -732,4 +775,4 @@ window.addEventListener('resize', ()=> {
 });
 </script>
 </body>
-  </html>
+      </html>
