@@ -41,63 +41,61 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,'Segoe 
     margin:24px auto; 
     padding:16px;
 }
-.header{background:linear-gradient(135deg,var(--primary),var(--primary-light));padding:28px;border-radius:16px;color:#fff;display:flex;gap:20px;align-items:center;box-shadow:var(--shadow-md); margin-bottom: 16px;} /* Menambahkan margin-bottom agar kontainer tidak terlalu mepet */
+.header{background:linear-gradient(135deg,var(--primary),var(--primary-light));padding:28px;border-radius:16px;color:#fff;display:flex;gap:20px;align-items:center;box-shadow:var(--shadow-md); margin-bottom: 20px;} /* Meningkatkan margin bawah sedikit */
 .header .title{font-size:24px;font-weight:700}
 .header .subtitle{opacity:.9;font-size:15px}
-.row{display:grid;grid-template-columns:1fr 360px;gap:16px;margin-top:0} /* Menghapus margin-top yang sebelumnya digunakan untuk jarak dari banner */
+.row{display:grid;grid-template-columns:1fr 360px;gap:20px;margin-top:0} /* Gap kembali ke 20px agar lebih lega */
 .card{
     background:var(--card);
-    padding:16px; 
+    padding:20px; /* Padding dikembalikan ke 20px */
     border-radius:12px;
     box-shadow:var(--shadow-md)
 }
 .card h4 {
-    font-size: 16px; 
+    font-size: 18px; /* Ukuran h4 yang nyaman */
     margin-top: 0;
 }
 
 /* --- Elements --- */
-/* Banner dihapus, jadi bagian ini tidak ada */
-
-.field{margin-top:10px} 
-label{display:block;margin-bottom:3px;font-weight:600;font-size:13px} 
+.field{margin-top:14px} /* Margin atas field kembali ke 14px */
+label{display:block;margin-bottom:4px;font-weight:600;font-size:14px} /* Ukuran label diperbaiki */
 input:not([type="file"]),textarea,select{
     width:100%;
-    padding:9px 12px; 
-    border-radius:6px; 
+    padding:10px 12px; /* Padding input yang nyaman */
+    border-radius:8px; 
     border:1px solid #d1d5db;
     background:#fff;
-    font-size:14px; 
+    font-size:15px; /* Ukuran font input yang nyaman */
     transition:border-color .2s ease
 }
 input:focus,textarea:focus,select:focus{border-color:var(--primary);outline:none}
-button{background:var(--primary);color:#fff;padding:10px 14px;border-radius:6px;border:0;cursor:pointer;font-weight:600;transition:background .2s ease;font-size:14px;box-shadow:0 2px 4px rgba(0,0,0,0.1)} 
+button{background:var(--primary);color:#fff;padding:12px 18px;border-radius:8px;border:0;cursor:pointer;font-weight:600;transition:background .2s ease;font-size:15px;box-shadow:0 2px 4px rgba(0,0,0,0.1)} 
 button:hover{background:var(--primary-light)}
 button.ghost{background:transparent;color:var(--primary);border:1px solid var(--primary-bg);box-shadow:none}
 button.ghost:hover{background:var(--primary-bg)}
 
 /* --- Data Grid (Riwayat) --- */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px} 
-.card-grid{background:#fff;border-radius:8px;padding:8px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;align-items:stretch;border:1px solid #f3f4f6; cursor: pointer;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px} /* Grid min-width dan gap disesuaikan */
+.card-grid{background:#fff;border-radius:10px;padding:10px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;align-items:stretch;border:1px solid #f3f4f6; cursor: pointer;}
 .card-grid img{
     width:100%;
-    height:140px;
-    object-fit: contain; /* PENTING: Mengubah dari cover ke contain agar gambar tidak terpotong */
-    border-radius:6px;
-    margin-bottom:6px;
-    background-color: #f8fafc; /* Latar belakang untuk gambar contain */
+    height:160px; /* Tinggi gambar ditingkatkan agar lebih proporsional */
+    object-fit: contain; 
+    border-radius:8px;
+    margin-bottom:8px;
+    background-color: #f8fafc; 
 }
-.card-grid .info{padding:2px}
-.card-grid strong{font-size:14px} 
-.card-grid .meta{color:var(--muted);font-size:12px;line-height:1.4} 
-.data-small{font-size:12px;color:var(--muted)} 
+.card-grid .info{padding:4px}
+.card-grid strong{font-size:15px} /* Ukuran font diperbaiki */
+.card-grid .meta{color:var(--muted);font-size:14px;line-height:1.4} /* Ukuran font diperbaiki */
+.data-small{font-size:14px;color:var(--muted)} /* Ukuran font diperbaiki */
 .delete-btn {
     background: var(--error);
     color: white;
-    padding: 5px 8px; 
-    border-radius: 5px;
-    font-size: 11px; 
-    margin-top: 6px;
+    padding: 8px 12px; /* Padding tombol disesuaikan */
+    border-radius: 6px;
+    font-size: 13px; /* Ukuran font tombol disesuaikan */
+    margin-top: 8px;
     width: 100%;
     transition: background .2s ease;
 }
@@ -106,46 +104,46 @@ button.ghost:hover{background:var(--primary-bg)}
 /* Admin Dashboard styles */
 .admin-stats {
     display: flex;
-    gap: 14px; 
-    margin-top: 14px;
+    gap: 16px; 
+    margin-top: 16px;
 }
 .stat-box {
     flex: 1;
-    padding: 14px; 
-    border-radius: 8px;
+    padding: 16px; 
+    border-radius: 10px;
     background: var(--primary-bg);
     border: 1px solid #e0e7ff;
     text-align: center;
 }
 .stat-box .count {
-    font-size: 24px; 
+    font-size: 30px; /* Ukuran font count ditingkatkan */
     font-weight: 700;
     color: var(--primary);
 }
 .stat-box .label {
-    font-size: 12px; 
+    font-size: 14px; /* Ukuran font label ditingkatkan */
     color: var(--muted);
     margin-top: 4px;
 }
 
 /* --- Modal --- */
-.modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:200;background:#fff;padding:20px;border-radius:12px;box-shadow:0 20px 50px rgba(15,23,42,.25);width:320px;max-width:94vw;display:none;opacity:0;transition:opacity .3s ease, transform .3s ease}
+.modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:200;background:#fff;padding:24px;border-radius:16px;box-shadow:0 20px 50px rgba(15,23,42,.25);width:360px;max-width:94vw;display:none;opacity:0;transition:opacity .3s ease, transform .3s ease}
 .modal.open{display:block;opacity:1;transform:translate(-50%,-50%)}
-.modal h4{margin:0 0 8px;font-size:16px}
-.modal #loginBlock, .modal #registerBlock { display: flex; flex-direction: column; gap: 6px;} 
+.modal h4{margin:0 0 10px;font-size:18px}
+.modal #loginBlock, .modal #registerBlock { display: flex; flex-direction: column; gap: 8px;} 
 
 /* Modal Preview Gambar */
 #imagePreviewModal {
     width: auto;
     max-width: 80vw;
     padding: 10px;
-    background: rgba(0,0,0,0.85); /* Dark background for image */
+    background: rgba(0,0,0,0.85); 
 }
 #imagePreviewModal.open {
     display: flex;
     justify-content: center;
     align-items: center;
-    inset: 0; /* Menutupi seluruh layar */
+    inset: 0; 
     transform: none;
     top: 0;
     left: 0;
@@ -161,23 +159,23 @@ button.ghost:hover{background:var(--primary-bg)}
 
 
 /* --- Chart --- */
-.chart-box{height:250px;margin-top:8px} 
+.chart-box{height:300px;margin-top:10px} 
 
 /* --- Toast Notification --- */
-#toastContainer{position:fixed;top:16px;right:16px;z-index:1000} 
-.toast{background:var(--card);color:#333;padding:10px 14px;border-radius:6px;box-shadow:0 6px 16px rgba(0,0,0,0.15);margin-bottom:8px;display:flex;align-items:center;gap:10px;opacity:0;transform:translateX(100%);transition:opacity .3s ease, transform .3s ease}
+#toastContainer{position:fixed;top:20px;right:20px;z-index:1000} 
+.toast{background:var(--card);color:#333;padding:12px 18px;border-radius:8px;box-shadow:0 6px 16px rgba(0,0,0,0.15);margin-bottom:10px;display:flex;align-items:center;gap:12px;opacity:0;transform:translateX(100%);transition:opacity .3s ease, transform .3s ease}
 .toast.show{opacity:1;transform:translateX(0)}
-.toast .icon{font-size:18px;line-height:1;margin-top:-2px}
-.toast .message{font-weight:600;font-size:13px} 
+.toast .icon{font-size:20px;line-height:1;margin-top:-2px}
+.toast .message{font-weight:600;font-size:15px} 
 
 /* --- Responsive --- */
 @media(max-width:980px){
-  .row{grid-template-columns:1fr; gap: 12px;}
+  .row{grid-template-columns:1fr; gap: 16px;}
   .header{flex-direction:column;align-items:flex-start}
-  .container{padding:10px}
-  .card{padding:14px}
+  .container{padding:12px}
+  .card{padding:16px}
   #sidebar{width:180px}
-  #toastContainer{right:8px;top:8px}
+  #toastContainer{right:10px;top:10px}
   .admin-stats { flex-direction: column; }
 }
 </style>
@@ -208,6 +206,7 @@ button.ghost:hover{background:var(--primary-bg)}
 
 <div class="container">
   <div class="header card">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16Z" fill="white" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <div>
       <div class="title">FARESTA — Laporan Tumbuh Kembang</div>
       <div class="subtitle">Pantau perkembangan anak dengan mudah, simpan foto & grafik interaktif.</div>
@@ -217,7 +216,7 @@ button.ghost:hover{background:var(--primary-bg)}
 
   <div class="row">
     <main id="mainContent">
-      <div class="card admin-only" id="adminDashboard" style="display:none; margin-bottom: 16px;">
+      <div class="card admin-only" id="adminDashboard" style="display:none; margin-bottom: 20px;">
         <h4>📊 Dashboard Admin</h4>
         <div class="admin-stats">
             <div class="stat-box">
@@ -241,17 +240,17 @@ button.ghost:hover{background:var(--primary-bg)}
         <div class="field"><label for="tinggi">Tinggi (cm)</label><input id="tinggi" placeholder="Cth: 80.5" type="number" min="0" step="0.1" /></div>
         <div class="field"><label for="berat">Berat (kg)</label><input id="berat" placeholder="Cth: 10.2" type="number" min="0" step="0.1" /></div>
         <div class="field"><label for="catatan">Catatan Perkembangan</label><textarea id="catatan" placeholder="Cth: Sudah bisa berjalan tanpa pegangan..."></textarea></div>
-        <div class="field" style="display:flex;gap:8px;align-items:center"><input id="foto" type="file" accept="image/*" style="flex-grow:1" /><button id="btnSave">💾 Simpan Data</button></div>
+        <div class="field" style="display:flex;gap:10px;align-items:center"><input id="foto" type="file" accept="image/*" style="flex-grow:1" /><button id="btnSave">💾 Simpan Data</button></div>
       </div>
 
-      <div class="card" id="chartCard" style="margin-top:16px">
+      <div class="card" id="chartCard" style="margin-top:20px">
         <h4>📈 Grafik Pertumbuhan Anak</h4>
         <div class="chart-box"><canvas id="growthChart" aria-label="Grafik pertumbuhan" role="img"></canvas></div>
       </div>
 
-      <div class="card" id="about" style="margin-top:16px">
+      <div class="card" id="about" style="margin-top:20px">
         <h4>💡 Tentang FARESTA</h4>
-        <p style="line-height:1.4; font-size: 13px;">FARESTA membantu orang tua menyimpan catatan tumbuh kembang anak, melihat grafik perkembangan, dan menyimpan foto untuk setiap catatan. Data disimpan secara lokal di browser Anda (LocalStorage) sehingga aman dan cepat.</p>
+        <p style="line-height:1.6; font-size: 15px;">FARESTA membantu orang tua menyimpan catatan tumbuh kembang anak, melihat grafik perkembangan, dan menyimpan foto untuk setiap catatan. Data disimpan secara lokal di browser Anda (LocalStorage) sehingga aman dan cepat.</p>
       </div>
     </main>
 
@@ -269,12 +268,12 @@ button.ghost:hover{background:var(--primary-bg)}
   <div id="loginBlock">
     <input id="loginUser" placeholder="Username">
     <input id="loginPass" placeholder="Password" type="password">
-    <div style="display:flex;gap:6px;margin-top:8px"><button id="btnLogin" style="flex-grow:1">Login</button><button id="showRegister" class="ghost">Register</button></div>
+    <div style="display:flex;gap:8px;margin-top:8px"><button id="btnLogin" style="flex-grow:1">Login</button><button id="showRegister" class="ghost">Register</button></div>
   </div>
   <div id="registerBlock" style="display:none">
     <input id="regUser" placeholder="Username">
     <input id="regPass" placeholder="Password" type="password">
-    <div style="display:flex;gap:6px;margin-top:8px"><button id="btnRegister" style="flex-grow:1">Buat Akun</button><button id="showLogin" class="ghost">Kembali</button></div>
+    <div style="display:flex;gap:8px;margin-top:8px"><button id="btnRegister" style="flex-grow:1">Buat Akun</button><button id="showLogin" class="ghost">Kembali</button></div>
   </div>
 </div>
 
@@ -536,7 +535,7 @@ function renderList(){
             <div class="meta">${e.usia} bulan • ${e.tinggi} cm • ${e.berat} kg</div>
             <div class="meta">${e.tanggalLahir||'Tgl. Tidak Ada'}</div>
             <div style="margin-top:4px" class="data-small">${e.catatan||'Tidak ada catatan.'}</div>
-            <button class="delete-btn" onclick="deleteEntry(${e.id})">🗑️ Hapus</button>
+            <button class="delete-btn" onclick="event.stopPropagation(); deleteEntry(${e.id});">🗑️ Hapus</button>
         </div>`; 
     list.appendChild(d); 
   }); 
@@ -563,7 +562,7 @@ function renderChart(){
             responsive: true, 
             maintainAspectRatio: false,
             plugins: { legend: { display: false }, title: { display: true, text: 'Login untuk melihat grafik' } },
-            scales: { x: { display: true, title: { display: true, text: 'Usia (bulan)', font: { size: 12 } } }, y: { beginAtZero: true, title: { display: true, text: 'Nilai', font: { size: 12 } } } }
+            scales: { x: { display: true, title: { display: true, text: 'Usia (bulan)', font: { size: 14 } } }, y: { beginAtZero: true, title: { display: true, text: 'Nilai', font: { size: 14 } } } }
         }
       });
       return;
@@ -582,7 +581,7 @@ function renderChart(){
             responsive: true, 
             maintainAspectRatio: false, 
             plugins: { title: { display: true, text: 'Belum ada data pertumbuhan' } },
-            scales: { x: { display: true, title: { display: true, text: 'Usia (bulan)', font: { size: 12 } } }, y: { beginAtZero: true, title: { display: true, text: 'Nilai', font: { size: 12 } } } }
+            scales: { x: { display: true, title: { display: true, text: 'Usia (bulan)', font: { size: 14 } } }, y: { beginAtZero: true, title: { display: true, text: 'Nilai', font: { size: 14 } } } }
         }
       });
       return;
@@ -604,8 +603,8 @@ function renderChart(){
             backgroundColor: 'rgba(79,70,229,0.1)', 
             tension: 0.4, 
             fill: false,
-            pointRadius: 4,
-            pointHoverRadius: 6
+            pointRadius: 6,
+            pointHoverRadius: 8
           },
           { 
             label: 'Berat (kg)', 
@@ -614,8 +613,8 @@ function renderChart(){
             backgroundColor: 'rgba(255,140,66,0.1)', 
             tension: 0.4, 
             fill: false,
-            pointRadius: 4,
-            pointHoverRadius: 6
+            pointRadius: 6,
+            pointHoverRadius: 8
           }
         ]
       },
@@ -623,16 +622,16 @@ function renderChart(){
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-            tooltip: { mode: 'index', intersect: false, bodyFont: { size: 12 }, titleFont: { size: 13 } },
-            legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 12 } } }
+            tooltip: { mode: 'index', intersect: false, bodyFont: { size: 14 }, titleFont: { size: 15 } },
+            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 14 } } }
         },
         scales: {
           x: {
-              title: { display: true, text: 'Usia (bulan)', font: { size: 12, weight: 'bold' } }, ticks: { font: { size: 10 } }
+              title: { display: true, text: 'Usia (bulan)', font: { size: 14, weight: 'bold' } }, ticks: { font: { size: 12 } }
           },
           y: { 
               beginAtZero: true,
-              title: { display: true, text: 'Tinggi (cm) / Berat (kg)', font: { size: 12, weight: 'bold' } }, ticks: { font: { size: 10 } }
+              title: { display: true, text: 'Tinggi (cm) / Berat (kg)', font: { size: 14, weight: 'bold' } }, ticks: { font: { size: 12 } }
           }
         }
       }
@@ -672,7 +671,7 @@ function initListeners() {
       const u = document.getElementById('regUser').value.trim(); const p = document.getElementById('regPass').value; if(!u||!p){ showToast('Isi username & password', 'error'); return; }
       const users = getUsers(); if(users[u]){ showToast('Username sudah ada', 'error'); return; }
       users[u] = { password: p, data: [] }; saveUsers(users); showToast('Akun dibuat — silakan login', 'success'); openAuth('login'); document.getElementById('regUser').value=''; document.getElementById('regPass').value='';
-      renderAdminStats(); // Update admin stats when a new user registers
+      renderAdminStats(); 
     });
     document.getElementById('btnLogin').addEventListener('click', ()=>{
       const u = document.getElementById('loginUser').value.trim(); const p = document.getElementById('loginPass').value; if(!u||!p){ showToast('Isi username & password', 'error'); return; }
@@ -690,7 +689,7 @@ function initListeners() {
         e.preventDefault();
         if (currentRole === 'admin') {
             renderAdminStats();
-            renderAuth(); // Ensure dashboard is displayed
+            renderAuth(); 
             showToast('Menampilkan Dashboard Admin', 'info');
         }
     });
