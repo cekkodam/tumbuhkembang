@@ -161,7 +161,7 @@ button.ghost:hover{background:var(--primary-bg)}
 .admin-stats {
     display: flex;
     gap: 16px; 
-    margin-top: 16px;
+    margin-bottom: 20px;
 }
 .stat-box {
     flex: 1;
@@ -181,6 +181,33 @@ button.ghost:hover{background:var(--primary-bg)}
     color: var(--muted);
     margin-top: 4px;
 }
+/* Admin User List */
+#userListAdmin {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 5px 0;
+}
+.user-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 15px;
+}
+.user-item:last-child {
+    border-bottom: none;
+}
+.user-item strong {
+    font-weight: 600;
+}
+.user-item span {
+    color: var(--muted);
+    font-size: 13px;
+}
+
 
 /* --- Modal --- */
 .modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:200;background:#fff;padding:24px;border-radius:16px;box-shadow:0 20px 50px rgba(15,23,42,.25);width:360px;max-width:94vw;display:none;opacity:0;transition:opacity .3s ease, transform .3s ease}
@@ -295,6 +322,10 @@ button.ghost:hover{background:var(--primary-bg)}
                 <div class="label">Total Kunjungan Website</div>
             </div>
         </div>
+        
+        <h5 style="font-size: 16px; font-weight: 700; margin-top: 15px; margin-bottom: 10px;">Daftar Username User Biasa:</h5>
+        <div id="userListAdmin">
+            </div>
       </div>
       
       <div class="card content-section" id="inputSection">
@@ -354,12 +385,26 @@ button.ghost:hover{background:var(--primary-bg)}
     <input id="loginUser" placeholder="Username">
     <input id="loginPass" placeholder="Password" type="password">
     <div style="display:flex;gap:8px;margin-top:8px"><button id="btnLogin" style="flex-grow:1">Login</button><button id="showRegister" class="ghost">Register</button></div>
+    <div style="text-align:center; margin-top:10px;"><a href="#" id="showForgotPassword" style="font-size:14px; color: var(--primary); text-decoration: none;">Lupa Password?</a></div>
   </div>
   <div id="registerBlock" style="display:none">
     <input id="regUser" placeholder="Username">
     <input id="regPass" placeholder="Password" type="password">
     <div style="display:flex;gap:8px;margin-top:8px"><button id="btnRegister" style="flex-grow:1">Buat Akun</button><button id="showLogin" class="ghost">Kembali</button></div>
   </div>
+</div>
+
+<div id="forgotPasswordModal" class="modal" aria-hidden="true">
+    <h4>Reset Password</h4>
+    <div class="data-small" style="color: var(--error); margin-bottom: 10px; padding: 10px; border: 1px solid var(--error); border-radius: 8px;">
+        ⚠️ **Peringatan:** Ini adalah aplikasi *client-side*. Tidak ada verifikasi email. Password akan langsung direset jika Username ditemukan.
+    </div>
+    <input id="forgotUser" placeholder="Username Anda">
+    <input id="forgotNewPass" placeholder="Password Baru" type="password">
+    <div style="display:flex;gap:8px;margin-top:10px">
+        <button id="btnResetPass" style="flex-grow:1">Ganti Password</button>
+        <button id="cancelReset" class="ghost">Batal</button>
+    </div>
 </div>
 
 <div id="manageChildModal" class="modal" aria-hidden="true">
@@ -410,7 +455,6 @@ const WHO_WFL_SIMULATION = {
 };
 
 // --- SIMULASI KURVA PERTUMBUHAN WHO (BERAT/USIA DAN TINGGI/USIA) ---
-// Data ini adalah simulasi, bukan data WHO aktual lengkap, digunakan untuk memplot garis di grafik.
 const WHO_SIMULATED_DATA = {
     // Berat Badan (kg) per Usia (Bulan) - Contoh 0 hingga 24 bulan
     weight: {
@@ -530,6 +574,7 @@ function renderChildSelector() {
 const manageChildModal = document.getElementById('manageChildModal');
 const authModal = document.getElementById('authModal');
 const detailModal = document.getElementById('detailModal'); 
+const forgotPasswordModal = document.getElementById('forgotPasswordModal');
 const modalOverlay = document.querySelector('.modal-overlay');
 
 document.getElementById('btnManageChildren').addEventListener('click', () => {
@@ -697,26 +742,39 @@ function showToast(message, type = 'info') {
 
 // --- MODAL & PREVIEW FUNCTIONS ---
 function openModal(modalEl) {
+    // Tutup semua modal sebelum membuka yang baru
+    [authModal, manageChildModal, detailModal, forgotPasswordModal].forEach(m => {
+        if (m && m !== modalEl) closeModal(m);
+    });
+
     modalEl.classList.add('open');
     modalEl.setAttribute('aria-hidden', 'false');
     modalOverlay.style.display = 'block';
 }
+
 function closeModal(modalEl) {
     modalEl.classList.remove('open');
     modalEl.setAttribute('aria-hidden', 'true');
     // Hanya sembunyikan overlay jika tidak ada modal lain yang terbuka
-    if (!authModal.classList.contains('open') && !manageChildModal.classList.contains('open') && !detailModal.classList.contains('open')) {
+    if (!authModal.classList.contains('open') && !manageChildModal.classList.contains('open') && !detailModal.classList.contains('open') && !forgotPasswordModal.classList.contains('open')) {
         modalOverlay.style.display = 'none';
     }
 }
 
-document.getElementById('overlay').addEventListener('click', ()=>{ closeSidebar(); closeModal(authModal); closeModal(manageChildModal); closeModal(detailModal); });
+document.getElementById('overlay').addEventListener('click', ()=>{ 
+    closeSidebar(); 
+    closeModal(authModal); 
+    closeModal(manageChildModal); 
+    closeModal(detailModal); 
+    closeModal(forgotPasswordModal); 
+});
 
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         if(authModal.classList.contains('open')) closeModal(authModal);
         if(manageChildModal.classList.contains('open')) closeModal(manageChildModal);
         if(detailModal.classList.contains('open')) closeModal(detailModal);
+        if(forgotPasswordModal.classList.contains('open')) closeModal(forgotPasswordModal);
         if(sidebar.classList.contains('open')) closeSidebar();
     }
 });
@@ -887,18 +945,44 @@ function openAuth(mode='login'){
 }
 
 
-// --- ADMIN STATS ---
+// --- ADMIN STATS & LIST USERS ---
 function getAdminStats() {
     const users = getUsers();
-    const userCount = Object.keys(users).length; 
+    const userKeys = Object.keys(users);
+    const userCount = userKeys.length; 
     const visitCount = parseInt(localStorage.getItem(VISIT_COUNT_KEY) || '0');
-    return { userCount: userCount, visitCount: visitCount };
+    
+    const userList = userKeys.filter(u => u !== 'admin').map(username => {
+        const numChildren = Object.keys(users[username].children || {}).length;
+        return { username, numChildren };
+    });
+
+    return { userCount: userCount, visitCount: visitCount, userList: userList };
 }
 
 function renderAdminStats() {
     const stats = getAdminStats();
     document.getElementById('statUsers').innerText = stats.userCount;
     document.getElementById('statVisits').innerText = stats.visitCount;
+
+    // Render User List
+    const listContainer = document.getElementById('userListAdmin');
+    listContainer.innerHTML = '';
+    
+    if (stats.userList.length === 0) {
+        listContainer.innerHTML = '<div class="data-small" style="padding: 10px 15px;">Belum ada user biasa terdaftar.</div>';
+        return;
+    }
+
+    stats.userList.forEach(user => {
+        const item = document.createElement('div');
+        item.className = 'user-item';
+        item.innerHTML = `
+            <strong>${user.username}</strong>
+            <span>${user.numChildren} anak</span>
+        `;
+        listContainer.appendChild(item);
+    });
 }
 
 // --- NAVIGATION ---
@@ -939,7 +1023,7 @@ function renderAllData() {
     imunisasiLink.style.display = (currentUser && currentRole === 'user') ? 'flex' : 'none';
     
     // Atur tampilan awal ke home
-    navigateTo('home');
+    navigateTo(currentRole === 'admin' ? 'dashboard' : 'home');
 }
 
 function renderAuth(){ 
@@ -958,14 +1042,6 @@ function renderAuth(){
   // Toggle Admin Dashboard visibility
   const adminLinks = document.querySelectorAll('.admin-only');
   adminLinks.forEach(el=> el.style.display = (currentRole==='admin')? 'block' : 'none');
-  
-  if (currentRole === 'admin') {
-      hideAllSections();
-      document.getElementById('adminDashboard').style.display = 'block';
-      renderAdminStats();
-  } else {
-      navigateTo('home');
-  }
 }
 
 function renderWho(){ 
@@ -1293,6 +1369,38 @@ document.getElementById('btnExportCSV').addEventListener('click', () => {
 });
 
 
+// --- FORGOT PASSWORD LOGIC ---
+function forgotPassword() {
+    const user = document.getElementById('forgotUser').value.trim();
+    const newPass = document.getElementById('forgotNewPass').value;
+
+    if (!user || !newPass) {
+        showToast('Username dan Password Baru harus diisi.', 'error');
+        return;
+    }
+
+    const users = getUsers();
+    
+    // Periksa apakah username ada (kecuali admin)
+    if (user === 'admin') {
+        showToast('Password Admin tidak dapat direset melalui fitur ini.', 'error');
+        return;
+    }
+    
+    if (users[user]) {
+        users[user].password = newPass;
+        saveUsers(users);
+        showToast(`Password untuk ${user} berhasil direset!`, 'success');
+        document.getElementById('forgotUser').value = '';
+        document.getElementById('forgotNewPass').value = '';
+        closeModal(forgotPasswordModal);
+        openAuth('login');
+    } else {
+        showToast('Username tidak ditemukan.', 'error');
+    }
+}
+
+
 // --- INIT LISTENERS ---
 function initListeners() {
     // Sidebar Navigation:
@@ -1314,6 +1422,21 @@ function initListeners() {
     // Auth Modal Switches:
     document.getElementById('showRegister').addEventListener('click', ()=> openAuth('register'));
     document.getElementById('showLogin').addEventListener('click', ()=> openAuth('login'));
+    
+    // Forgot Password Link
+    document.getElementById('showForgotPassword').addEventListener('click', (e) => {
+        e.preventDefault();
+        closeModal(authModal);
+        openModal(forgotPasswordModal);
+    });
+    
+    // Forgot Password Actions
+    document.getElementById('btnResetPass').addEventListener('click', forgotPassword);
+    document.getElementById('cancelReset').addEventListener('click', () => {
+        closeModal(forgotPasswordModal);
+        openAuth('login');
+    });
+
     
     // Auth Actions:
     document.getElementById('btnRegister').addEventListener('click', ()=>{
