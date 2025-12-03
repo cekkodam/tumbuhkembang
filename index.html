@@ -101,7 +101,6 @@ button.ghost:hover{background:var(--primary-bg)}
 }
 
 /* --- Data Grid (Riwayat) --- */
-/* Ubah grid agar kartu lebih kecil karena foto hilang */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px} 
 .card-grid{background:#fff;border-radius:10px;padding:10px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;align-items:stretch;border:1px solid #e5e7eb; cursor: pointer;} 
 /* Placeholder Icon */
@@ -199,6 +198,32 @@ button.ghost:hover{background:var(--primary-bg)}
     display: block;
 }
 
+/* Modal Detail Riwayat */
+#detailModal {
+    width: 450px; 
+    max-width: 90vw;
+}
+#detailModal .detail-field {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dashed #eee;
+    font-size: 15px;
+}
+#detailModal .detail-field strong { font-weight: 600; }
+#detailModal .detail-field span { color: var(--muted); }
+#detailModal p { white-space: pre-wrap; margin: 10px 0; background: var(--primary-bg); padding: 10px; border-radius: 8px; font-style: italic; }
+
+/* Imunisasi table */
+#immunizationTable table { width: 100%; border-collapse: collapse; font-size: 13px; }
+#immunizationTable th, #immunizationTable td { padding: 8px 5px; text-align: left; border-bottom: 1px solid #eee; }
+#immunizationTable th { background: #f3f4f6; font-weight: 700; color: #1f2937; }
+.imun-status { padding: 3px 6px; border-radius: 4px; font-weight: 600; font-size: 12px; }
+.imun-status.done { background: var(--success); color: white; }
+.imun-status.pending { background: var(--warning); color: #333; }
+.imun-status.missed { background: var(--error); color: white; }
+
+
 /* --- Chart --- */
 .chart-box{height:350px;margin-top:10px} 
 
@@ -235,6 +260,7 @@ button.ghost:hover{background:var(--primary-bg)}
   </div>
   <div class="panel" id="sidebarPanel" style="display:none">
     <a href="#home" data-nav>🏡 Beranda</a>
+    <a href="#imunisasi" id="imunisasiLink" data-nav style="display: none;">💉 Imunisasi</a>
     <a href="#" id="openAuth" class="menu-login">🔑 Login / Register</a>
     <a href="#dashboard" data-nav id="adminLink" class="admin-only">⚙️ Dashboard Admin</a>
     <a href="#about" data-nav>💡 Tentang</a>
@@ -257,7 +283,7 @@ button.ghost:hover{background:var(--primary-bg)}
 
   <div class="row">
     <main id="mainContent">
-      <div class="card admin-only" id="adminDashboard" style="display:none; margin-bottom: 20px;">
+      <div class="card admin-only content-section" id="adminDashboard" style="display:none; margin-bottom: 20px;">
         <h4>📊 Dashboard Admin</h4>
         <div class="admin-stats">
             <div class="stat-box">
@@ -271,7 +297,7 @@ button.ghost:hover{background:var(--primary-bg)}
         </div>
       </div>
       
-      <div class="card" id="inputSection">
+      <div class="card content-section" id="inputSection">
         <h4>Input Data Perkembangan Anak</h4>
         <div class="data-small" id="whoInfo">Belum login</div>
 
@@ -288,9 +314,17 @@ button.ghost:hover{background:var(--primary-bg)}
             <button id="btnSave" style="width: 100%;">💾 Simpan Data</button>
         </div>
       </div>
+      
+      <div class="card content-section" id="imunisasiSection" style="margin-top:20px; display:none;">
+        <h4>💉 Jadwal Imunisasi</h4>
+        <div id="imunisasiInfo" class="data-small">Silakan pilih data anak terlebih dahulu.</div>
+        <div id="imunisasiTable">
+            </div>
+      </div>
 
-      <div class="card" id="chartCard" style="margin-top:20px">
-        <h4>📈 Grafik Pertumbuhan Anak</h4>
+
+      <div class="card content-section" id="chartCard" style="margin-top:20px">
+        <h4>📈 Grafik Pertumbuhan Anak (vs. Standar WHO)</h4>
         <div id="growthStatus" class="status-badge">Data Tidak Lengkap</div>
         <div class="chart-box"><canvas id="growthChart" aria-label="Grafik pertumbuhan" role="img"></canvas></div>
         <div class="btn-group">
@@ -299,7 +333,7 @@ button.ghost:hover{background:var(--primary-bg)}
         </div>
       </div>
 
-      <div class="card" id="about" style="margin-top:20px">
+      <div class="card content-section" id="about" style="margin-top:20px">
         <h4>💡 Tentang FARESTA</h4>
         <p style="line-height:1.6; font-size: 15px;">FARESTA membantu orang tua menyimpan catatan tumbuh kembang anak dan melihat grafik perkembangan. Data disimpan secara lokal di browser Anda (LocalStorage) sehingga aman dan cepat.</p>
       </div>
@@ -339,6 +373,18 @@ button.ghost:hover{background:var(--primary-bg)}
     <button id="btnAddChild">➕ Tambah Anak</button>
 </div>
 
+<div id="detailModal" class="modal" aria-hidden="true">
+    <h4>Detail Riwayat <span id="detailChildName" style="color:var(--primary); font-size: 16px;"></span></h4>
+    <div class="detail-field"><strong>Tanggal Input</strong><span id="detailTanggal"></span></div>
+    <div class="detail-field"><strong>Usia</strong><span id="detailUsia"></span></div>
+    <div class="detail-field"><strong>Tinggi Badan</strong><span id="detailTinggi"></span></div>
+    <div class="detail-field"><strong>Berat Badan</strong><span id="detailBerat"></span></div>
+    <div class="detail-field"><strong>Status Gizi</strong><span id="detailStatus"></span></div>
+    <h5 style="font-size: 16px; margin: 15px 0 5px;">Catatan Perkembangan:</h5>
+    <p id="detailCatatan"></p>
+    <button id="detailDeleteBtn" class="delete-btn" style="width: 100%; margin-top: 10px;">🗑️ Hapus Riwayat Ini</button>
+</div>
+
 <div class="modal-overlay"></div>
 
 
@@ -358,15 +404,41 @@ let currentRole = null;
 let currentChildId = null; 
 
 // --- WHO GROWTH CHART DATA SIMULATED (Simplified) ---
+// Digunakan untuk status gizi cepat (WFL)
 const WHO_WFL_SIMULATION = {
-    // Berat median (kg) pada panjang/tinggi tertentu (cm)
-    '60': 5.8, 
-    '70': 8.0, 
-    '80': 10.2,
-    '90': 12.7,
-    '100': 15.3,
-    '110': 17.8
+    '60': 5.8, '70': 8.0, '80': 10.2, '90': 12.7, '100': 15.3, '110': 17.8
 };
+
+// --- SIMULASI KURVA PERTUMBUHAN WHO (BERAT/USIA DAN TINGGI/USIA) ---
+// Data ini adalah simulasi, bukan data WHO aktual lengkap, digunakan untuk memplot garis di grafik.
+const WHO_SIMULATED_DATA = {
+    // Berat Badan (kg) per Usia (Bulan) - Contoh 0 hingga 24 bulan
+    weight: {
+        labels: [0, 3, 6, 9, 12, 18, 24],
+        median: [3.3, 6.0, 7.8, 9.2, 10.2, 11.5, 12.5],
+        sd_plus2: [4.5, 7.8, 9.8, 11.5, 12.7, 14.2, 15.5],
+        sd_minus2: [2.1, 4.2, 5.8, 6.9, 7.7, 8.8, 9.5]
+    },
+    // Tinggi Badan (cm) per Usia (Bulan) - Contoh 0 hingga 24 bulan
+    height: {
+        labels: [0, 3, 6, 9, 12, 18, 24],
+        median: [50.0, 61.1, 67.8, 72.8, 77.0, 83.3, 89.0],
+        sd_plus2: [53.7, 65.0, 72.0, 77.0, 81.5, 88.5, 94.0],
+        sd_minus2: [46.3, 57.2, 63.6, 68.6, 72.5, 78.1, 84.0]
+    }
+};
+
+// --- IMUNISASI SCHEDULE (Simplified) ---
+const IMUNISASI_SCHEDULE = [
+    { name: "Hepatitis B-0", age: 0, notes: "Diberikan segera setelah lahir (Maks. 24 jam)" },
+    { name: "BCG, Polio 1", age: 1, notes: "Usia 1 bulan" },
+    { name: "DPT-HB-HiB 1, Polio 2, Rotavirus 1", age: 2, notes: "Usia 2 bulan" },
+    { name: "DPT-HB-HiB 2, Polio 3", age: 3, notes: "Usia 3 bulan" },
+    { name: "DPT-HB-HiB 3, Polio 4, Rotavirus 2", age: 4, notes: "Usia 4 bulan" },
+    { name: "Campak", age: 9, notes: "Usia 9 bulan" },
+    { name: "DPT-HB-HiB (Lanjutan)", age: 18, notes: "Usia 18 bulan (Booster)" }
+];
+
 
 // --- SESSION MANAGEMENT FUNCTIONS ---
 function saveSession(username, role, childId = null) {
@@ -457,6 +529,7 @@ function renderChildSelector() {
 // --- MODAL MANAGEMENT ---
 const manageChildModal = document.getElementById('manageChildModal');
 const authModal = document.getElementById('authModal');
+const detailModal = document.getElementById('detailModal'); 
 const modalOverlay = document.querySelector('.modal-overlay');
 
 document.getElementById('btnManageChildren').addEventListener('click', () => {
@@ -477,12 +550,13 @@ document.getElementById('btnAddChild').addEventListener('click', () => {
     const users = getUsers();
     const newChildId = Date.now().toString();
 
-    // Pastikan children dan data diinisialisasi dengan benar
+    // Pastikan children, data, dan imunisasi diinisialisasi dengan benar
     users[currentUser].children = users[currentUser].children || {};
     users[currentUser].children[newChildId] = {
         name: name,
         dob: dob,
-        data: [] // Pastikan array data ada
+        data: [], // Data pertumbuhan
+        immunization: {} // Data imunisasi baru
     };
     saveUsers(users);
     showToast(`${name} berhasil ditambahkan!`, 'success');
@@ -631,17 +705,18 @@ function closeModal(modalEl) {
     modalEl.classList.remove('open');
     modalEl.setAttribute('aria-hidden', 'true');
     // Hanya sembunyikan overlay jika tidak ada modal lain yang terbuka
-    if (!authModal.classList.contains('open') && !manageChildModal.classList.contains('open')) {
+    if (!authModal.classList.contains('open') && !manageChildModal.classList.contains('open') && !detailModal.classList.contains('open')) {
         modalOverlay.style.display = 'none';
     }
 }
 
-document.getElementById('overlay').addEventListener('click', ()=>{ closeSidebar(); closeModal(authModal); closeModal(manageChildModal); });
+document.getElementById('overlay').addEventListener('click', ()=>{ closeSidebar(); closeModal(authModal); closeModal(manageChildModal); closeModal(detailModal); });
 
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         if(authModal.classList.contains('open')) closeModal(authModal);
         if(manageChildModal.classList.contains('open')) closeModal(manageChildModal);
+        if(detailModal.classList.contains('open')) closeModal(detailModal);
         if(sidebar.classList.contains('open')) closeSidebar();
     }
 });
@@ -690,9 +765,102 @@ function deleteEntry(id) {
     users[currentUser].children[currentChildId].data = data;
     saveUsers(users);
     
+    closeModal(detailModal); // Tutup modal detail setelah hapus
     showToast('Data berhasil dihapus', 'success');
     renderList();
     renderChart();
+    renderImunisasiTable();
+}
+
+
+// --- IMUNISASI FUNCTIONS ---
+
+function renderImunisasiTable() {
+    const tableContainer = document.getElementById('imunisasiTable');
+    const infoEl = document.getElementById('imunisasiInfo');
+    
+    if (!currentUser || currentRole === 'admin' || !currentChildId) {
+        tableContainer.innerHTML = '';
+        infoEl.innerText = 'Silakan login sebagai user dan pilih anak untuk melihat data imunisasi.';
+        return;
+    }
+
+    const childData = getCurrentChildData();
+    const childAge = calculateAge(childData.dob);
+    
+    // Pastikan skema data imunisasi ada
+    childData.immunization = childData.immunization || {}; 
+
+    infoEl.innerText = `Jadwal Imunisasi untuk ${childData.name} (Usia ${childAge} bulan):`;
+
+    let html = `
+        <table>
+            <thead>
+                <tr>
+                    <th>Imunisasi</th>
+                    <th>Usia Wajib</th>
+                    <th>Status</th>
+                    <th>Tanggal Diberikan</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    IMUNISASI_SCHEDULE.forEach((imun, index) => {
+        const key = imun.name.replace(/\s/g, '_');
+        const statusData = childData.immunization[key] || {};
+        
+        let statusClass = 'pending';
+        let statusText = 'Pending';
+        let givenDate = 'N/A';
+        let actionBtn = `<button style="padding: 5px 10px; font-size: 13px;" onclick="markImunizationDone('${key}', ${imun.age})">Tandai Selesai</button>`;
+
+        if (statusData.done) {
+            statusClass = 'done';
+            statusText = 'Selesai';
+            givenDate = statusData.date || '—';
+            actionBtn = `<button style="background: var(--warning); padding: 5px 10px; font-size: 13px;" onclick="markImunizationPending('${key}')">Batal Selesai</button>`;
+        } else if (childAge > imun.age + 2) { // 2 bulan toleransi
+            statusClass = 'missed';
+            statusText = 'Terlambat/Terlewat';
+        }
+        
+        html += `
+            <tr>
+                <td><strong>${imun.name}</strong><div class="data-small">${imun.notes}</div></td>
+                <td>${imun.age} bulan</td>
+                <td><span class="imun-status ${statusClass}">${statusText}</span></td>
+                <td>${givenDate}</td>
+                <td>${actionBtn}</td>
+            </tr>
+        `;
+    });
+
+    html += `</tbody></table>`;
+    tableContainer.innerHTML = html;
+}
+
+function markImunizationDone(key, age) {
+    const users = getUsers();
+    const childData = users[currentUser].children[currentChildId];
+    
+    const today = new Date().toISOString().split('T')[0];
+
+    childData.immunization[key] = { done: true, date: today, age_given: calculateAge(childData.dob) };
+    saveUsers(users);
+    showToast(`Imunisasi ${key.replace(/_/g, ' ')} berhasil ditandai selesai!`, 'success');
+    renderImunisasiTable();
+}
+
+function markImunizationPending(key) {
+    const users = getUsers();
+    const childData = users[currentUser].children[currentChildId];
+    
+    delete childData.immunization[key]; 
+    saveUsers(users);
+    showToast(`Status imunisasi ${key.replace(/_/g, ' ')} diubah menjadi Pending.`, 'warning');
+    renderImunisasiTable();
 }
 
 
@@ -703,7 +871,8 @@ const sidebarPanel = document.getElementById('sidebarPanel');
 const overlay = document.getElementById('overlay');
 const authTitle = document.getElementById('authTitle');
 const adminDashboard = document.getElementById('adminDashboard');
-const inputSection = document.getElementById('inputSection');
+const imunisasiLink = document.getElementById('imunisasiLink');
+
 
 // Sidebar open/close
 function openSidebar(){ sidebar.classList.add('open'); sidebarPanel.style.display='block'; overlay.classList.add('show'); }
@@ -732,6 +901,30 @@ function renderAdminStats() {
     document.getElementById('statVisits').innerText = stats.visitCount;
 }
 
+// --- NAVIGATION ---
+function hideAllSections() {
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.style.display = 'none';
+    });
+}
+
+function navigateTo(targetId) {
+    hideAllSections();
+    if (targetId === 'home' || targetId === 'inputSection' || targetId === 'chartCard' || targetId === 'about') {
+        document.getElementById('inputSection').style.display = 'block';
+        document.getElementById('chartCard').style.display = 'block';
+        document.getElementById('about').style.display = 'block';
+    } else if (targetId === 'imunisasi') {
+        document.getElementById('imunisasiSection').style.display = 'block';
+        renderImunisasiTable();
+    } else if (targetId === 'dashboard' && currentRole === 'admin') {
+        document.getElementById('adminDashboard').style.display = 'block';
+        renderAdminStats();
+    }
+    closeSidebar();
+}
+
+
 // --- RENDER FUNCTIONS (MASTER) ---
 
 function renderAllData() {
@@ -740,6 +933,13 @@ function renderAllData() {
     renderWho(); 
     renderList(); 
     renderChart();
+    renderImunisasiTable(); // Panggil render imunisasi
+    
+    // Tampilkan link imunisasi jika user login
+    imunisasiLink.style.display = (currentUser && currentRole === 'user') ? 'flex' : 'none';
+    
+    // Atur tampilan awal ke home
+    navigateTo('home');
 }
 
 function renderAuth(){ 
@@ -760,12 +960,11 @@ function renderAuth(){
   adminLinks.forEach(el=> el.style.display = (currentRole==='admin')? 'block' : 'none');
   
   if (currentRole === 'admin') {
-      inputSection.style.display = 'none';
-      adminDashboard.style.display = 'block';
+      hideAllSections();
+      document.getElementById('adminDashboard').style.display = 'block';
       renderAdminStats();
   } else {
-      inputSection.style.display = 'block';
-      adminDashboard.style.display = 'none';
+      navigateTo('home');
   }
 }
 
@@ -784,13 +983,12 @@ function renderWho(){
 
 
 // Input save
-// FUNGSI btnSave YANG SUDAH DIREVISI (TANPA FOTO)
 document.getElementById('btnSave').addEventListener('click', async ()=>{
   // 1. Validasi Awal
   if(!currentUser || currentRole === 'admin'){ showToast('Silakan login sebagai user biasa untuk menyimpan data', 'error'); return; }
   if(!currentChildId){ showToast('Silakan pilih atau tambahkan data anak terlebih dahulu.', 'error'); return; }
 
-  // 2. Ambil Data Anak Aktif (untuk mendapatkan DOB & menghitung usia)
+  // 2. Ambil Data Anak Aktif 
   const users = getUsers(); 
   const childData = users[currentUser]?.children?.[currentChildId];
 
@@ -808,21 +1006,17 @@ document.getElementById('btnSave').addEventListener('click', async ()=>{
   const entry = { 
     id: Date.now(), 
     tanggal_input: new Date().toISOString().split('T')[0],
-    // MENGHITUNG USIA BERDASARKAN DOB ANAK YANG AKTIF
     usia_bulan: calculateAge(childData.dob), 
     tinggi: Number(tinggi), 
     berat: Number(berat), 
     catatan: catatan
-    // PROPERTI FOTO DIHILANGKAN
   };
   
   // 6. Proses Penyimpanan ke Local Storage
-  // Inisialisasi array data jika belum ada (PENTING untuk mencegah bug data)
   if (!users[currentUser].children[currentChildId].data) {
       users[currentUser].children[currentChildId].data = [];
   }
 
-  // Tambahkan data baru
   users[currentUser].children[currentChildId].data.push(entry); 
   saveUsers(users); 
   showToast('Data perkembangan tersimpan', 'success'); 
@@ -835,6 +1029,33 @@ document.getElementById('btnSave').addEventListener('click', async ()=>{
   document.getElementById('berat').value=''; 
   document.getElementById('catatan').value=''; 
 });
+
+// Show Detail Modal (New Function)
+function showDetail(id) {
+    const childData = getCurrentChildData();
+    if (!childData) return;
+
+    const entry = childData.data.find(e => e.id === id);
+    if (!entry) return;
+
+    // Hitung status gizi
+    const statusResult = getGrowthStatus(entry.tinggi, entry.berat);
+
+    // Isi Modal
+    document.getElementById('detailChildName').innerText = `(${childData.name})`;
+    document.getElementById('detailTanggal').innerText = entry.tanggal_input;
+    document.getElementById('detailUsia').innerText = `${entry.usia_bulan} bulan`;
+    document.getElementById('detailTinggi').innerText = `${entry.tinggi} cm`;
+    document.getElementById('detailBerat').innerText = `${entry.berat} kg`;
+    document.getElementById('detailStatus').innerHTML = `<span class="status-badge ${statusResult.class}">${statusResult.status}</span>`;
+    document.getElementById('detailCatatan').innerText = entry.catatan || '— Tidak ada catatan —';
+    
+    // Set fungsi hapus
+    document.getElementById('detailDeleteBtn').onclick = () => deleteEntry(id);
+
+    openModal(detailModal);
+}
+
 
 // Data list (grid)
 function renderList(){ 
@@ -850,13 +1071,14 @@ function renderList(){
   entries.slice().reverse().forEach(e=>{ 
     
     const d = document.createElement('div'); d.className = 'card-grid'; 
-    
+    d.setAttribute('onclick', `showDetail(${e.id})`); // Tambahkan listener detail
+
     // Tentukan status gizi untuk riwayat ini
     const statusResult = getGrowthStatus(e.tinggi, e.berat);
     const statusBadge = `<span class="status-badge ${statusResult.class}" style="margin-top: 0; margin-bottom: 0;">${statusResult.status}</span>`;
 
     d.innerHTML = `
-        <div class="placeholder-icon">
+        <div class="placeholder-icon" title="Riwayat Data">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2Z"/><path d="M12 8V16"/><path d="M8 12H16"/></svg>
         </div>
         <div class="info">
@@ -865,7 +1087,6 @@ function renderList(){
             <div class="meta">${e.usia_bulan} bulan</div>
             <div class="meta">${e.tinggi} cm • ${e.berat} kg</div>
             <div class="meta data-small">Tgl Input: ${e.tanggal_input}</div>
-            <div style="margin-top:4px" class="data-small">${e.catatan||'Tidak ada catatan.'}</div>
             <button class="delete-btn" onclick="event.stopPropagation(); deleteEntry(${e.id});">🗑️ Hapus</button>
         </div>`; 
     list.appendChild(d); 
@@ -903,9 +1124,14 @@ function renderChart(){
     const childData = getCurrentChildData();
     const data = (childData.data) ? childData.data.slice() : [];
     
+    // Urutkan data berdasarkan usia bulan untuk plotting yang benar pada sumbu X
     data.sort((a,b)=>a.usia_bulan - b.usia_bulan); 
+    
+    // Pastikan data yang akan diplot memiliki usia (bulan)
+    const validData = data.filter(d => d.usia_bulan !== null && d.usia_bulan >= 0);
 
-    if(!data.length){
+
+    if(!validData.length){
       statusEl.innerText = 'Belum ada data untuk anak ini';
       statusEl.className = 'status-badge';
       chart = new Chart(ctx, { 
@@ -921,41 +1147,70 @@ function renderChart(){
     }
     
     // Tampilkan status gizi terbaru
-    const latestEntry = data[data.length - 1];
+    const latestEntry = validData[validData.length - 1];
     const statusResult = getGrowthStatus(latestEntry.tinggi, latestEntry.berat);
     statusEl.innerText = `Status Terbaru: ${statusResult.status}`;
     statusEl.className = `status-badge ${statusResult.class}`;
 
+    // --- SETUP DATASET GRAFIK ---
 
-    const labels = data.map(d => String(d.tanggal_input));
-    const tinggi = data.map(d => d.tinggi);
-    const berat = data.map(d => d.berat);
+    // Data Anak
+    const userWeightData = validData.map(d => ({ x: d.usia_bulan, y: d.berat }));
+    const userHeightData = validData.map(d => ({ x: d.usia_bulan, y: d.tinggi }));
+
+    // Data Standar WHO (Simulasi)
+    const whoLabels = WHO_SIMULATED_DATA.weight.labels;
+    const whoWeightMedian = WHO_SIMULATED_DATA.weight.median.map((y, i) => ({ x: whoLabels[i], y: y }));
+    const whoWeightSDp2 = WHO_SIMULATED_DATA.weight.sd_plus2.map((y, i) => ({ x: whoLabels[i], y: y }));
+    const whoWeightSDm2 = WHO_SIMULATED_DATA.weight.sd_minus2.map((y, i) => ({ x: whoLabels[i], y: y }));
+
+    const whoHeightMedian = WHO_SIMULATED_DATA.height.median.map((y, i) => ({ x: whoLabels[i], y: y }));
+    const whoHeightSDp2 = WHO_SIMULATED_DATA.height.sd_plus2.map((y, i) => ({ x: whoLabels[i], y: y }));
+    const whoHeightSDm2 = WHO_SIMULATED_DATA.height.sd_minus2.map((y, i) => ({ x: whoLabels[i], y: y }));
+
+    const allDataPoints = [...userWeightData, ...userHeightData, ...whoWeightSDp2, ...whoHeightSDp2];
+    const maxUsia = Math.max(...allDataPoints.map(d => d.x), 24);
+    const maxVal = Math.max(...allDataPoints.map(d => d.y));
 
     chart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels,
         datasets: [
+          // DATA ANAK (Primary)
           { 
-            label: 'Tinggi (cm)', 
-            data: tinggi, 
-            borderColor: '#4f46e5', 
-            backgroundColor: 'rgba(79,70,229,0.1)', 
-            tension: 0.4, 
+            label: `Berat ${childData.name} (kg)`, 
+            data: userWeightData, 
+            borderColor: '#ff8c42', 
+            backgroundColor: 'rgba(255,140,66,0.5)', 
+            tension: 0.2, 
             fill: false,
             pointRadius: 6,
-            pointHoverRadius: 8
+            pointHoverRadius: 8,
+            pointStyle: 'circle',
+            yAxisID: 'yWeight',
+            order: 1
           },
           { 
-            label: 'Berat (kg)', 
-            data: berat, 
-            borderColor: '#ff8c42', 
-            backgroundColor: 'rgba(255,140,66,0.1)', 
-            tension: 0.4, 
+            label: `Tinggi ${childData.name} (cm)`, 
+            data: userHeightData, 
+            borderColor: '#4f46e5', 
+            backgroundColor: 'rgba(79,70,229,0.5)', 
+            tension: 0.2, 
             fill: false,
             pointRadius: 6,
-            pointHoverRadius: 8
-          }
+            pointHoverRadius: 8,
+            pointStyle: 'triangle',
+            yAxisID: 'yHeight',
+            order: 2
+          },
+          // GARIS STANDAR WHO (Secondary - Berat)
+          { label: 'WHO Median BB', data: whoWeightMedian, borderColor: '#ff8c42', borderDash: [5, 5], borderWidth: 1, tension: 0.4, fill: false, pointRadius: 0, yAxisID: 'yWeight', order: 3 },
+          { label: 'WHO +2 SD BB', data: whoWeightSDp2, borderColor: '#f44336', borderWidth: 1, tension: 0.4, fill: false, pointRadius: 0, yAxisID: 'yWeight', order: 4 },
+          { label: 'WHO -2 SD BB', data: whoWeightSDm2, borderColor: '#f44336', borderWidth: 1, tension: 0.4, fill: false, pointRadius: 0, yAxisID: 'yWeight', order: 5 },
+          // GARIS STANDAR WHO (Secondary - Tinggi)
+          { label: 'WHO Median TB', data: whoHeightMedian, borderColor: '#4f46e5', borderDash: [5, 5], borderWidth: 1, tension: 0.4, fill: false, pointRadius: 0, yAxisID: 'yHeight', order: 6 },
+          { label: 'WHO +2 SD TB', data: whoHeightSDp2, borderColor: '#10b981', borderWidth: 1, tension: 0.4, fill: false, pointRadius: 0, yAxisID: 'yHeight', order: 7 },
+          { label: 'WHO -2 SD TB', data: whoHeightSDm2, borderColor: '#10b981', borderWidth: 1, tension: 0.4, fill: false, pointRadius: 0, yAxisID: 'yHeight', order: 8 },
         ]
       },
       options: {
@@ -963,16 +1218,33 @@ function renderChart(){
         maintainAspectRatio: false,
         plugins: {
             tooltip: { mode: 'index', intersect: false, bodyFont: { size: 14 }, titleFont: { size: 15 } },
-            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 14 } } },
-            title: { display: true, text: `Grafik Pertumbuhan ${childData.name}`, font: { size: 16 } }
+            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 12 } } },
+            title: { display: true, text: `Grafik Pertumbuhan ${childData.name} vs. Standar WHO`, font: { size: 16 } }
         },
         scales: {
           x: {
-              title: { display: true, text: 'Tanggal Input', font: { size: 14, weight: 'bold' } }, ticks: { font: { size: 12 } }
+              type: 'linear', // Ubah tipe sumbu X menjadi linear (angka)
+              min: 0,
+              max: Math.ceil(maxUsia / 6) * 6, // Pembulatan ke atas kelipatan 6
+              title: { display: true, text: 'Usia Anak (Bulan)', font: { size: 14, weight: 'bold' } }, 
+              ticks: { stepSize: 3, font: { size: 12 } }
           },
-          y: { 
+          yWeight: {
+              type: 'linear',
+              position: 'left',
               beginAtZero: true,
-              title: { display: true, text: 'Tinggi (cm) / Berat (kg)', font: { size: 14, weight: 'bold' } }, ticks: { font: { size: 12 } }
+              max: Math.ceil(maxVal * 1.1 / 5) * 5, // Auto Max
+              title: { display: true, text: 'Berat Badan (kg)', font: { size: 14, weight: 'bold' }, color: '#ff8c42' }, 
+              ticks: { font: { size: 12 }, color: '#ff8c42' }
+          },
+          yHeight: {
+              type: 'linear',
+              position: 'right',
+              beginAtZero: false,
+              grid: { drawOnChartArea: false }, // Jangan tampilkan garis grid untuk sumbu kanan
+              max: Math.ceil(maxVal * 1.1 / 10) * 10, // Auto Max
+              title: { display: true, text: 'Tinggi Badan (cm)', font: { size: 14, weight: 'bold' }, color: '#4f46e5' }, 
+              ticks: { font: { size: 12 }, color: '#4f46e5' }
           }
         }
       }
@@ -1025,9 +1297,19 @@ document.getElementById('btnExportCSV').addEventListener('click', () => {
 function initListeners() {
     // Sidebar Navigation:
     sidebarBtn.addEventListener('click', (e)=>{ e.stopPropagation(); if(sidebar.classList.contains('open')) closeSidebar(); else openSidebar(); });
-    // Overlay listener ada di atas
-
     document.getElementById('openAuth').addEventListener('click', (e)=>{ e.preventDefault(); openAuth('login'); closeSidebar(); });
+    
+    // Navigate via Sidebar links
+    document.querySelectorAll('[data-nav]').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = e.currentTarget.getAttribute('href').substring(1);
+            if (targetId) {
+                navigateTo(targetId);
+            }
+        });
+    });
+
     
     // Auth Modal Switches:
     document.getElementById('showRegister').addEventListener('click', ()=> openAuth('register'));
@@ -1077,15 +1359,6 @@ function initListeners() {
         renderAllData(); 
         showToast('Logout berhasil', 'info'); 
     });
-    
-    // Admin Link Handler:
-    document.getElementById('adminLink').addEventListener('click', (e)=>{
-        e.preventDefault();
-        if (currentRole === 'admin') {
-            renderAllData(); 
-            showToast('Menampilkan Dashboard Admin', 'info');
-        }
-    });
 }
 
 // initial load and setup
@@ -1101,4 +1374,4 @@ window.addEventListener('resize', ()=> {
 });
 </script>
 </body>
-      </html>
+  </html>
