@@ -1,214 +1,432 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FARESTA - Laporan Tumbuh Kembang</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: "Poppins", sans-serif;
-      background: #f5f8ff;
-      color: #2d2d2d;
-      overflow-x: hidden;
-    }
-    .sidebar {
-      width: 250px;
-      height: 100vh;
-      background: linear-gradient(180deg, #6a8cff, #5072e6);
-      position: fixed;
-      left: -260px;
-      top: 0;
-      padding: 25px;
-      color: white;
-      transition: 0.35s;
-      z-index: 1000;
-    }
-    .sidebar.open { left: 0; }
-    .sidebar h2 {
-      text-align: center;
-      margin-bottom: 30px;
-      font-size: 24px;
-      font-weight: 600;
-    }
-    .sidebar a {
-      display: block;
-      padding: 12px;
-      text-decoration: none;
-      color: white;
-      margin-bottom: 10px;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.18);
-      transition: 0.3s;
-    }
-    .sidebar a:hover {
-      background: rgba(255,255,255,0.32);
-      transform: scale(1.03);
-    }
-    .sidebar-toggle {
-      position: fixed;
-      top: 15px;
-      left: 15px;
-      background: #5072e6;
-      color: white;
-      padding: 10px 15px;
-      border-radius: 8px;
-      cursor: pointer;
-      z-index: 1100;
-      font-weight: bold;
-    }
-    header {
-      background: linear-gradient(135deg, #5072e6, #6a8cff, #8fb1ff);
-      padding: 70px 20px;
-      color: white;
-      text-align: center;
-      border-bottom-left-radius: 45px;
-      border-bottom-right-radius: 45px;
-    }
-    .container {
-      max-width: 1100px;
-      margin: 30px auto;
-      padding: 20px;
-    }
-    input, textarea, button, select {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 12px;
-      border: 1px solid #d3d3d3;
-      border-radius: 10px;
-      font-size: 15px;
-    }
-    button {
-      background: #5072e6;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    button:hover { background: #395ac0; }
-    .data-card {
-      background: white;
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-      margin-bottom: 15px;
-      display: flex;
-      gap: 20px;
-      align-items: center;
-    }
-    .data-card img {
-      width: 130px;
-      height: 130px;
-      border-radius: 14px;
-      object-fit: cover;
-      border: 1px solid #ddd;
-    }
-    @media (max-width: 768px) {
-      .data-card { flex-direction: column; text-align: center; }
-      .sidebar { width: 230px; left: -240px; }
-      .sidebar.open { left: 0; }
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>FARESTA — Laporan Tumbuh Kembang</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --primary: #4f46e5; /* Tailwind indigo-600 */
+  --primary-light: #6366f1; /* Tailwind indigo-500 */
+  --primary-bg: #eef2ff; /* Tailwind indigo-50 */
+  --muted: #6b7280;
+  --card: #fff;
+  --bg: #f3f4f6; /* Lighter background */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+  --success: #10b981; /* Tailwind emerald-500 */
+  --error: #ef4444; /* Tailwind red-500 */
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial;color:#1f2937;background:var(--bg)}
+
+/* --- Sidebar --- */
+#sidebarBtn{position:fixed;top:16px;left:16px;z-index:140;background:var(--primary);color:#fff;border:0;padding:10px;border-radius:12px;cursor:pointer;box-shadow:var(--shadow-md)}
+#sidebar{position:fixed;top:16px;left:16px;width:200px;background:var(--primary);border-radius:12px;padding:8px;box-shadow:0 10px 30px rgba(15,23,42,.15);transform:translateX(-250px);transition:transform .3s cubic-bezier(0.68, -0.55, 0.265, 1.55);z-index:130}
+#sidebar.open{transform:translateX(0)}
+#sidebar .panel{background:#fff;color:#1f2937;border-radius:10px;padding:10px;margin-top:8px;box-shadow:var(--shadow-sm)}
+#sidebar h3{margin:0 0 6px;font-size:14px;color:#fff}
+#sidebar a{display:flex;align-items:center;gap:8px;padding:10px;border-radius:8px;text-decoration:none;color:#1f2937;margin-bottom:6px;background:var(--primary-bg);font-weight:600;transition:background .15s ease}
+#sidebar a:hover{background:#dbeafe}
+#sidebar a.admin-only{display:none}
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,0.18);z-index:120;display:none;transition:opacity .3s ease}
+#overlay.show{display:block;opacity:1}
+
+/* --- Layout --- */
+.container{max-width:1200px;margin:24px auto;padding:16px}
+.header{background:linear-gradient(135deg,var(--primary),var(--primary-light));padding:28px;border-radius:16px;color:#fff;display:flex;gap:20px;align-items:center;box-shadow:var(--shadow-md)}
+.header .title{font-size:24px;font-weight:700}
+.header .subtitle{opacity:.9;font-size:15px}
+.row{display:grid;grid-template-columns:1fr 360px;gap:20px;margin-top:20px}
+.card{background:var(--card);padding:20px;border-radius:12px;box-shadow:var(--shadow-md)}
+
+/* --- Elements --- */
+.banner{height:120px;border-radius:10px;background:linear-gradient(90deg,var(--primary-bg),rgba(99,102,241,.08));display:flex;align-items:center;justify-content:space-between;padding:16px;border:1px solid #e0e7ff;margin-bottom:16px}
+.banner .left{font-size:18px;font-weight:700;color:var(--primary)}
+.banner .right{font-size:14px;color:var(--muted);text-align:right}
+
+.field{margin-top:14px}
+label{display:block;margin-bottom:4px;font-weight:600;font-size:14px}
+input:not([type="file"]),textarea,select{width:100%;padding:12px;border-radius:8px;border:1px solid #d1d5db;background:#fff;font-size:15px;transition:border-color .2s ease}
+input:focus,textarea:focus,select:focus{border-color:var(--primary);outline:none}
+button{background:var(--primary);color:#fff;padding:12px 18px;border-radius:8px;border:0;cursor:pointer;font-weight:600;transition:background .2s ease;box-shadow:0 2px 4px rgba(0,0,0,0.1)}
+button:hover{background:var(--primary-light)}
+button.ghost{background:transparent;color:var(--primary);border:1px solid var(--primary-bg);box-shadow:none}
+button.ghost:hover{background:var(--primary-bg)}
+
+/* --- Data Grid --- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+.card-grid{background:#fff;border-radius:10px;padding:10px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;align-items:stretch;border:1px solid #f3f4f6}
+.card-grid img{width:100%;height:160px;object-fit:cover;border-radius:8px;margin-bottom:8px}
+.card-grid .info{padding:4px}
+.card-grid strong{font-size:15px}
+.card-grid .meta{color:var(--muted);font-size:13px;line-height:1.4}
+.data-small{font-size:13px;color:var(--muted)}
+
+/* --- Modal --- */
+.modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:200;background:#fff;padding:24px;border-radius:16px;box-shadow:0 20px 50px rgba(15,23,42,.25);width:360px;max-width:94vw;display:none;opacity:0;transition:opacity .3s ease, transform .3s ease}
+.modal.open{display:block;opacity:1;transform:translate(-50%,-50%)}
+.modal h4{margin:0 0 10px;font-size:18px}
+.modal .row{display:block}
+
+/* --- Chart --- */
+.chart-box{height:300px;margin-top:10px}
+
+/* --- Toast Notification --- */
+#toastContainer{position:fixed;top:20px;right:20px;z-index:1000}
+.toast{background:var(--card);color:#333;padding:12px 18px;border-radius:8px;box-shadow:0 6px 16px rgba(0,0,0,0.15);margin-bottom:10px;display:flex;align-items:center;gap:12px;opacity:0;transform:translateX(100%);transition:opacity .3s ease, transform .3s ease}
+.toast.show{opacity:1;transform:translateX(0)}
+.toast.success{border-left:5px solid var(--success);color:var(--success)}
+.toast.error{border-left:5px solid var(--error);color:var(--error)}
+.toast.info{border-left:5px solid var(--primary);color:var(--primary)}
+.toast .icon{font-size:20px;line-height:1;margin-top:-2px}
+.toast .message{font-weight:600;font-size:15px}
+
+/* --- Responsive --- */
+@media(max-width:980px){
+  .row{grid-template-columns:1fr}
+  .header{flex-direction:column;align-items:flex-start}
+  .container{padding:12px}
+  .card{padding:16px}
+  #sidebar{width:180px}
+  #toastContainer{right:10px;top:10px}
+}
+</style>
 </head>
 <body>
-<div class="sidebar-toggle" onclick="toggleSidebar()">☰ Menu</div>
-<div class="sidebar" id="sidebar">
-  <h2>FARESTA</h2>
-  <a href="#home">Beranda</a>
-  <a href="#input">Input Data</a>
-  <a href="#data">Data Tersimpan</a>
-  <a href="#grafik">Grafik</a>
-  <a href="#about">Tentang</a>
+
+<button id="sidebarBtn" title="Menu">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 6H20M4 12H20M4 18H20" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+</button>
+<div id="sidebar" aria-hidden="true">
+  <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;color:#fff;font-size:18px">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16Z" fill="white" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div style="font-weight:700">FARESTA</div>
+  </div>
+  <div class="panel" id="sidebarPanel" style="display:none">
+    <a href="#home" data-nav>🏡 Beranda</a>
+    <a href="#" id="openAuth" class="menu-login">🔑 Login / Register</a>
+    <a href="#dashboard" data-nav class="admin-only">⚙️ Dashboard Admin</a>
+    <a href="#about" data-nav>💡 Tentang</a>
+    <a href="#" id="btnLogout" style="display:none">🚪 Logout</a>
+  </div>
 </div>
-<header id="home">
-  <h1>Laporan Tumbuh Kembang Anak</h1>
-  <p>Simpan, pantau, dan lihat perkembangan Faresta dengan grafik interaktif.</p>
-</header>
+<div id="overlay"></div>
+
+<div id="toastContainer"></div>
+
 <div class="container">
-  <h2 id="input">Input Data Perkembangan</h2>
-  <form id="formData">
-    <input type="text" id="nama" placeholder="Nama Anak" required>
-    <input type="date" id="tanggalLahir" required>
-    <input type="number" id="usia" placeholder="Usia (bulan)" required>
-    <input type="number" id="tinggi" placeholder="Tinggi (cm)" step="0.1" required>
-    <input type="number" id="berat" placeholder="Berat (kg)" step="0.1" required>
-    <textarea id="catatan" placeholder="Catatan perkembangan..."></textarea>
-    <label>Foto Perkembangan</label>
-    <input type="file" id="foto" accept="image/*">
-    <button type="submit">Simpan Data</button>
-  </form>
-  <h2 id="grafik">Grafik Pertumbuhan</h2>
-  <canvas id="chartGrowth" style="background:white; border-radius:12px; padding:10px;"></canvas>
-  <h2 id="data">Data Tersimpan</h2>
-  <div id="listData"></div>
-  <h2 id="about">Tentang</h2>
-  <p>Website ini membantu orang tua memantau perkembangan anak secara visual dan tersimpan rapi. Semua data disimpan di perangkat Anda melalui localStorage.</p>
+  <div class="header card">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16Z" fill="white" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div>
+      <div class="title">FARESTA — Laporan Tumbuh Kembang</div>
+      <div class="subtitle">Pantau perkembangan anak dengan mudah, simpan foto & grafik interaktif.</div>
+    </div>
+    <div style="margin-left:auto; text-align:right" id="accountArea"></div>
+  </div>
+
+  <div class="row">
+    <main>
+      <div class="banner" id="banner">
+        <div class="left">Ringkasan Perkembangan</div>
+        <div class="right">Data tersimpan lokal • Multi-user • Responsive</div>
+      </div>
+
+      <div class="card" id="inputSection">
+        <h4>Input Data Perkembangan Anak</h4>
+        <div class="data-small" id="whoInfo">Belum login</div>
+
+        <div class="field"><label for="nama">Nama Anak</label><input id="nama" placeholder="Cth: Budi" /></div>
+        <div class="field"><label for="usia">Usia (bulan)</label><input id="usia" placeholder="Cth: 18" type="number" min="0" /></div>
+        <div class="field"><label for="tanggalLahir">Tanggal Lahir</label><input id="tanggalLahir" type="date" /></div>
+        <div class="field"><label for="tinggi">Tinggi (cm)</label><input id="tinggi" placeholder="Cth: 80.5" type="number" min="0" step="0.1" /></div>
+        <div class="field"><label for="berat">Berat (kg)</label><input id="berat" placeholder="Cth: 10.2" type="number" min="0" step="0.1" /></div>
+        <div class="field"><label for="catatan">Catatan Perkembangan</label><textarea id="catatan" placeholder="Cth: Sudah bisa berjalan tanpa pegangan..."></textarea></div>
+        <div class="field" style="display:flex;gap:10px;align-items:center"><input id="foto" type="file" accept="image/*" style="flex-grow:1" /><button id="btnSave">💾 Simpan Data</button></div>
+      </div>
+
+      <div class="card" id="chartCard" style="margin-top:20px">
+        <h4>📈 Grafik Pertumbuhan Anak</h4>
+        <div class="chart-box"><canvas id="growthChart" aria-label="Grafik pertumbuhan" role="img"></canvas></div>
+      </div>
+
+      <div class="card" id="about" style="margin-top:20px">
+        <h4>💡 Tentang FARESTA</h4>
+        <p style="line-height:1.6">FARESTA membantu orang tua menyimpan catatan tumbuh kembang anak, melihat grafik perkembangan, dan menyimpan foto untuk setiap catatan. Data disimpan secara lokal di browser Anda (LocalStorage) sehingga aman dan cepat.</p>
+      </div>
+    </main>
+
+    <aside>
+      <div class="card" id="authCard">
+        <h4>Data Tersimpan (Riwayat)</h4>
+        <div id="dataList" class="grid"></div>
+      </div>
+    </aside>
+  </div>
 </div>
+
+<div id="authModal" class="modal" aria-hidden="true">
+  <h4 id="authTitle">Login</h4>
+  <div id="loginBlock">
+    <div style="margin-top:8px"><input id="loginUser" placeholder="Username"></div>
+    <div style="margin-top:8px"><input id="loginPass" placeholder="Password" type="password"></div>
+    <div style="display:flex;gap:8px;margin-top:16px"><button id="btnLogin" style="flex-grow:1">Login</button><button id="showRegister" class="ghost">Register</button></div>
+  </div>
+  <div id="registerBlock" style="display:none;margin-top:8px">
+    <div style="margin-top:8px"><input id="regUser" placeholder="Username"></div>
+    <div style="margin-top:8px"><input id="regPass" placeholder="Password" type="password"></div>
+    <div style="display:flex;gap:8px;margin-top:16px"><button id="btnRegister" style="flex-grow:1">Buat Akun</button><button id="showLogin" class="ghost">Kembali</button></div>
+  </div>
+</div>
+
 <script>
-function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); }
-let data = JSON.parse(localStorage.getItem('growthData')) || [];
-const list = document.getElementById('listData');
-const form = document.getElementById('formData');
-let chart;
-form.addEventListener('submit',e=>{
-  e.preventDefault();
-  const file = document.getElementById('foto').files[0];
-  if(file){
-    const reader = new FileReader();
-    reader.onload = e=> saveData(e.target.result);
-    reader.readAsDataURL(file);
-  } else saveData(null);
+// --- TOAST NOTIFICATION FUNCTION ---
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    let icon = '';
+    if (type === 'success') icon = '✅';
+    else if (type === 'error') icon = '❌';
+    else icon = '💡';
+    
+    toast.innerHTML = `<span class="icon">${icon}</span><span class="message">${message}</span>`;
+    container.appendChild(toast);
+    
+    // Show animation
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 50);
+
+    // Hide animation and remove
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300); // Wait for transition
+    }, 4000);
+}
+
+// --- STORAGE & AUTH HELPERS ---
+const USERS_KEY = 'faresta_users_v3';
+const getUsers = ()=> JSON.parse(localStorage.getItem(USERS_KEY) || '{}');
+const saveUsers = u=> localStorage.setItem(USERS_KEY, JSON.stringify(u));
+// ensure admin
+(function(){ const u=getUsers(); if(!u.admin){ u.admin={password:'admin123',data:[]}; saveUsers(u); }})();
+
+let currentUser = null; // username
+let currentRole = null; // 'admin'|'user'
+
+const sidebarBtn = document.getElementById('sidebarBtn');
+const sidebar = document.getElementById('sidebar');
+const sidebarPanel = document.getElementById('sidebarPanel');
+const overlay = document.getElementById('overlay');
+const authModal = document.getElementById('authModal');
+const authTitle = document.getElementById('authTitle');
+
+// Sidebar open/close
+function openSidebar(){ sidebar.classList.add('open'); sidebarPanel.style.display='block'; overlay.classList.add('show'); }
+function closeSidebar(){ sidebar.classList.remove('open'); sidebarPanel.style.display='none'; overlay.classList.remove('show'); }
+sidebarBtn.addEventListener('click', (e)=>{ e.stopPropagation(); if(sidebar.classList.contains('open')) closeSidebar(); else openSidebar(); });
+overlay.addEventListener('click', ()=>{ closeSidebar(); closeAuth(); });
+document.addEventListener('click', (e)=>{ if(!sidebar.contains(e.target) && !sidebarBtn.contains(e.target) && sidebar.classList.contains('open')) closeSidebar(); });
+
+// open auth modal
+document.getElementById('openAuth').addEventListener('click', (e)=>{ e.preventDefault(); openAuth('login'); closeSidebar(); });
+function openAuth(mode='login'){ authTitle.innerText = mode==='login' ? 'Login' : 'Register'; authModal.classList.add('open'); authModal.setAttribute('aria-hidden','false'); 
+    document.getElementById('loginBlock').style.display=mode==='login' ? 'flex' : 'none'; 
+    document.getElementById('registerBlock').style.display=mode==='register' ? 'flex' : 'none'; 
+}
+function closeAuth(){ authModal.classList.remove('open'); authModal.setAttribute('aria-hidden','true'); }
+
+// switch inside modal
+document.getElementById('showRegister').addEventListener('click', ()=> openAuth('register'));
+document.getElementById('showLogin').addEventListener('click', ()=> openAuth('login'));
+
+// register
+document.getElementById('btnRegister').addEventListener('click', ()=>{
+  const u = document.getElementById('regUser').value.trim(); const p = document.getElementById('regPass').value; if(!u||!p){ showToast('Isi username & password', 'error'); return; }
+  const users = getUsers(); if(users[u]){ showToast('Username sudah ada', 'error'); return; }
+  users[u] = { password: p, data: [] }; saveUsers(users); showToast('Akun dibuat — silakan login', 'success'); openAuth('login'); document.getElementById('regUser').value=''; document.getElementById('regPass').value='';
 });
-function saveData(img){
-  const entry={
-    nama: nama.value,
-    tanggalLahir: tanggalLahir.value,
-    usia: parseInt(usia.value),
-    tinggi: parseFloat(tinggi.value),
-    berat: parseFloat(berat.value),
-    catatan: catatan.value,
-    foto: img
-  };
-  data.push(entry);
-  localStorage.setItem('growthData',JSON.stringify(data));
-  form.reset();
-  render();
+
+// login
+document.getElementById('btnLogin').addEventListener('click', ()=>{
+  const u = document.getElementById('loginUser').value.trim(); const p = document.getElementById('loginPass').value; if(!u||!p){ showToast('Isi username & password', 'error'); return; }
+  const users = getUsers(); 
+  if(u==='admin' && p==='admin123'){ 
+    currentUser='admin'; currentRole='admin'; closeAuth(); closeSidebar(); renderAuth(); renderList(); renderChart(); showToast('Login Admin berhasil', 'success'); return; 
+  }
+  if(!users[u] || users[u].password !== p){ showToast('Username / password salah', 'error'); return; }
+  currentUser = u; currentRole = 'user'; closeAuth(); closeSidebar(); renderAuth(); renderList(); renderChart(); renderWho(); showToast('Login berhasil', 'success');
+});
+
+// logout
+document.getElementById('btnLogout').addEventListener('click', ()=>{ currentUser=null; currentRole=null; renderAuth(); renderList(); renderChart(); renderWho(); showToast('Logout berhasil', 'info'); });
+
+function renderAuth(){ // update UI after login/logout
+  const accountArea = document.getElementById('accountArea');
+  if(currentUser){ accountArea.innerHTML = `<div style="font-weight:700">${currentUser}</div><div class="data-small">${currentRole}</div>`; document.getElementById('btnLogout').style.display='block'; document.querySelectorAll('.menu-login').forEach(x=>x.style.display='none'); } else { accountArea.innerHTML = '<button id="authHeaderBtn" class="ghost">Login</button>'; document.getElementById('authHeaderBtn')?.addEventListener('click', (e)=>{ e.preventDefault(); openAuth('login'); }); document.getElementById('btnLogout').style.display='none'; document.querySelectorAll('.menu-login').forEach(x=>x.style.display='block'); }
+  document.querySelectorAll('.admin-only').forEach(el=> el.style.display = (currentRole==='admin')? 'block' : 'none');
 }
-function render(){
-  list.innerHTML="";
-  let usiaArr=[], tinggiArr=[], beratArr=[];
-  data.forEach(x=>{
-    const card=document.createElement('div');
-    card.className='data-card';
-    card.innerHTML=`
-      <img src="${x.foto || 'https://via.placeholder.com/130'}">
-      <div>
-        <strong>${x.nama}</strong><br>
-        Usia: ${x.usia} bulan<br>
-        Tinggi: ${x.tinggi} cm — Berat: ${x.berat} kg<br>
-        <em>${x.catatan || ''}</em>
-      </div>`;
-    list.appendChild(card);
-    usiaArr.push(x.usia);
-    tinggiArr.push(x.tinggi);
-    beratArr.push(x.berat);
-  });
-  if(chart) chart.destroy();
-  const ctx=document.getElementById('chartGrowth');
-  chart=new Chart(ctx,{
-    type:'line',
-    data:{
-      labels: usiaArr,
-      datasets:[
-        {label:'Tinggi (cm)', data:tinggiArr, borderColor:'#5072e6', tension:0.3},
-        {label:'Berat (kg)', data:beratArr, borderColor:'#ff8c42', tension:0.3}
-      ]
+
+// Input save
+async function fileToBase64(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); }
+
+document.getElementById('btnSave').addEventListener('click', async ()=>{
+  if(!currentUser){ showToast('Silakan login terlebih dahulu', 'error'); return; }
+  const nama = document.getElementById('nama').value.trim(); const usia = document.getElementById('usia').value; const tanggalLahir = document.getElementById('tanggalLahir').value; const tinggi = document.getElementById('tinggi').value; const berat = document.getElementById('berat').value; const catatan = document.getElementById('catatan').value.trim(); const fotoFile = document.getElementById('foto').files[0];
+  if(!nama || !usia || !tinggi || !berat){ showToast('Lengkapi data penting (Nama, Usia, Tinggi, Berat)', 'error'); return; }
+  const users = getUsers(); const entry = { id:Date.now(), nama, usia:Number(usia), tanggalLahir, tinggi:Number(tinggi), berat:Number(berat), catatan, foto:null };
+  if(fotoFile) {
+      if(fotoFile.size > 2 * 1024 * 1024) { // Max 2MB
+          showToast('Ukuran foto terlalu besar (Max 2MB)', 'error');
+          return;
+      }
+      entry.foto = await fileToBase64(fotoFile);
+  }
+  users[currentUser].data.push(entry); saveUsers(users); showToast('Data perkembangan tersimpan', 'success'); renderList(); renderChart(); 
+  // clear
+  document.getElementById('nama').value=''; document.getElementById('usia').value=''; document.getElementById('tanggalLahir').value=''; document.getElementById('tinggi').value=''; document.getElementById('berat').value=''; document.getElementById('catatan').value=''; document.getElementById('foto').value='';
+});
+
+function renderWho(){ document.getElementById('whoInfo').innerText = currentUser ? `Masuk sebagai ${currentUser} (${currentRole})` : 'Belum login'; }
+
+// Data list (grid)
+function renderList(){ 
+  const list = document.getElementById('dataList'); list.innerHTML=''; 
+  if(!currentUser){ list.innerHTML = '<div class="data-small">Login untuk melihat data tersimpan.</div>'; return; } 
+  if(currentRole === 'admin'){ list.innerHTML = '<div class="data-small">Mode Admin tidak menyimpan data perkembangan anak.</div>'; return; }
+
+  const users = getUsers(); 
+  const entries = users[currentUser]?.data || []; 
+  if(!entries.length) { list.innerHTML = '<div class="data-small">Belum ada data tersimpan.</div>'; return; }
+  
+  entries.slice().reverse().forEach(e=>{ 
+    const d = document.createElement('div'); d.className = 'card-grid'; 
+    const fotoSrc = e.foto||'data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"320\" height=\"180\" viewBox=\"0 0 320 180\"><rect width=\"100%\" height=\"100%\" fill=\"%23eef4ff\"/><text x=\"50%\" y=\"50%\" font-family=\"Inter\" font-size=\"24\" fill=\"%234f46e5\" text-anchor=\"middle\" dominant-baseline=\"middle\">No Photo</text></svg>';
+    d.innerHTML = `<img src="${fotoSrc}" alt="Foto ${e.nama}"><div class="info"><strong>${e.nama}</strong><div class="meta">${e.usia} bulan • ${e.tinggi} cm • ${e.berat} kg</div><div class="meta">${e.tanggalLahir||'Tgl. Tidak Ada'}</div><div style="margin-top:6px" class="data-small">${e.catatan||'Tidak ada catatan.'}</div></div>`; 
+    list.appendChild(d); 
+  }); 
+}
+
+// Chart — Chart.js
+let chart = null;
+function renderChart(){
+  try{
+    const canvas = document.getElementById('growthChart');
+    if(!canvas) return;
+
+    // Destroy existing chart instance
+    const existing = Chart.getChart(canvas);
+    if(existing){ existing.destroy(); }
+    
+    const ctx = canvas.getContext('2d');
+    if(!ctx) return;
+
+    if(!currentUser || currentRole === 'admin'){
+      // empty placeholder chart
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: { labels: ['0'], datasets: [ { label: 'Tinggi (cm)', data: [0], borderColor: '#d1d5db', tension: 0.4 }, { label: 'Berat (kg)', data: [0], borderColor: '#9ca3af', tension: 0.4 } ] },
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false }, title: { display: true, text: 'Login untuk melihat grafik' } },
+            scales: { x: { display: true, title: { display: true, text: 'Usia (bulan)' } }, y: { beginAtZero: true, title: { display: true, text: 'Nilai' } } }
+        }
+      });
+      return;
     }
-  });
+
+    const users = getUsers();
+    const data = (users[currentUser] && users[currentUser].data) ? users[currentUser].data.slice() : [];
+    
+    // Sort by usia for a correct chart
+    data.sort((a,b)=>a.usia - b.usia); 
+
+    if(!data.length){
+      // show empty axes
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: { labels: ['0'], datasets: [ { label: 'Tinggi (cm)', data: [0], borderColor: '#4f46e5', tension: 0.4 }, { label: 'Berat (kg)', data: [0], borderColor: '#ff8c42', tension: 0.4 } ] },
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            plugins: { title: { display: true, text: 'Belum ada data pertumbuhan' } },
+            scales: { x: { display: true, title: { display: true, text: 'Usia (bulan)' } }, y: { beginAtZero: true, title: { display: true, text: 'Nilai' } } }
+        }
+      });
+      return;
+    }
+
+    // use usia as labels
+    const labels = data.map(d => String(d.usia));
+    const tinggi = data.map(d => d.tinggi);
+    const berat = data.map(d => d.berat);
+
+    chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          { 
+            label: 'Tinggi (cm)', 
+            data: tinggi, 
+            borderColor: '#4f46e5', 
+            backgroundColor: 'rgba(79,70,229,0.1)', 
+            tension: 0.4, 
+            fill: false,
+            pointRadius: 6,
+            pointHoverRadius: 8
+          },
+          { 
+            label: 'Berat (kg)', 
+            data: berat, 
+            borderColor: '#ff8c42', 
+            backgroundColor: 'rgba(255,140,66,0.1)', 
+            tension: 0.4, 
+            fill: false,
+            pointRadius: 6,
+            pointHoverRadius: 8
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            tooltip: { mode: 'index', intersect: false },
+            legend: { position: 'bottom' }
+        },
+        scales: {
+          x: {
+              title: { display: true, text: 'Usia (bulan)', font: { size: 14, weight: 'bold' } }
+          },
+          y: { 
+              beginAtZero: true,
+              title: { display: true, text: 'Tinggi (cm) / Berat (kg)', font: { size: 14, weight: 'bold' } }
+          }
+        }
+      }
+    });
+  }catch(err){
+    console.error('renderChart error', err);
+    showToast('Gagal memuat grafik. Cek konsol.', 'error');
+  }
 }
-render();
+
+// initial load
+renderAuth(); renderWho(); renderList(); renderChart();
+
+// Ensure chart re-renders on resize (though Chart.js handles this, good practice for layout changes)
+window.addEventListener('resize', ()=> {
+    // A slight delay ensures the container has settled after a resize
+    setTimeout(renderChart, 100); 
+});
+
 </script>
 </body>
-</html>
+    </html>
