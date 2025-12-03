@@ -101,17 +101,26 @@ button.ghost:hover{background:var(--primary-bg)}
 }
 
 /* --- Data Grid (Riwayat) --- */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px} 
+/* Ubah grid agar kartu lebih kecil karena foto hilang */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px} 
 .card-grid{background:#fff;border-radius:10px;padding:10px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;align-items:stretch;border:1px solid #e5e7eb; cursor: pointer;} 
-.card-grid img{
-    width:100%;
-    height:160px; 
-    object-fit: contain; 
-    border-radius:8px;
-    margin-bottom:8px;
-    background-color: #f8fafc; 
-    border: 1px solid #f3f4f6;
+/* Placeholder Icon */
+.card-grid .placeholder-icon {
+    width: 100%;
+    height: 100px; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--primary-bg); 
+    border-radius: 8px;
+    margin-bottom: 8px;
 }
+.card-grid .placeholder-icon svg {
+    width: 40px;
+    height: 40px;
+    color: var(--primary);
+}
+
 .card-grid .info{padding:4px}
 .card-grid strong{font-size:16px; color:#1f2937;} 
 .card-grid .meta{color:var(--muted);font-size:14px;line-height:1.4} 
@@ -190,32 +199,6 @@ button.ghost:hover{background:var(--primary-bg)}
     display: block;
 }
 
-/* Modal Preview Gambar */
-#imagePreviewModal {
-    width: auto;
-    max-width: 80vw;
-    padding: 10px;
-    background: rgba(0,0,0,0.85); 
-}
-#imagePreviewModal.open {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    inset: 0; 
-    transform: none;
-    top: 0;
-    left: 0;
-}
-#imagePreviewModal img {
-    max-width: 100%;
-    max-height: 90vh;
-    border-radius: 8px;
-    object-fit: contain;
-    background: #fff;
-    padding: 5px;
-}
-
-
 /* --- Chart --- */
 .chart-box{height:350px;margin-top:10px} 
 
@@ -235,12 +218,6 @@ button.ghost:hover{background:var(--primary-bg)}
   #sidebar{width:180px}
   #toastContainer{right:10px;top:10px}
   .admin-stats { flex-direction: column; }
-}
-
-/* Khusus input file agar tidak terlalu kecil di mobile */
-input[type="file"] {
-    font-size: 14px;
-    padding: 8px 0;
 }
 </style>
 </head>
@@ -273,7 +250,7 @@ input[type="file"] {
     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16Z" fill="white" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <div>
       <div class="title">FARESTA — Laporan Tumbuh Kembang</div>
-      <div class="subtitle">Pantau perkembangan anak dengan mudah, simpan foto & grafik interaktif.</div>
+      <div class="subtitle">Pantau perkembangan anak dengan mudah dan cepat.</div>
     </div>
     <div style="margin-left:auto; text-align:right" id="accountArea"></div>
   </div>
@@ -307,7 +284,9 @@ input[type="file"] {
         <div class="field"><label for="tinggi">Tinggi (cm)</label><input id="tinggi" placeholder="Cth: 80.5" type="number" min="0" step="0.1" /></div>
         <div class="field"><label for="berat">Berat (kg)</label><input id="berat" placeholder="Cth: 10.2" type="number" min="0" step="0.1" /></div>
         <div class="field"><label for="catatan">Catatan Perkembangan</label><textarea id="catatan" placeholder="Cth: Sudah bisa berjalan tanpa pegangan..."></textarea></div>
-        <div class="field" style="display:flex;gap:10px;align-items:center"><input id="foto" type="file" accept="image/*" style="flex-grow:1" /><button id="btnSave">💾 Simpan Data</button></div>
+        <div class="field">
+            <button id="btnSave" style="width: 100%;">💾 Simpan Data</button>
+        </div>
       </div>
 
       <div class="card" id="chartCard" style="margin-top:20px">
@@ -322,7 +301,7 @@ input[type="file"] {
 
       <div class="card" id="about" style="margin-top:20px">
         <h4>💡 Tentang FARESTA</h4>
-        <p style="line-height:1.6; font-size: 15px;">FARESTA membantu orang tua menyimpan catatan tumbuh kembang anak, melihat grafik perkembangan, dan menyimpan foto untuk setiap catatan. Data disimpan secara lokal di browser Anda (LocalStorage) sehingga aman dan cepat.</p>
+        <p style="line-height:1.6; font-size: 15px;">FARESTA membantu orang tua menyimpan catatan tumbuh kembang anak dan melihat grafik perkembangan. Data disimpan secara lokal di browser Anda (LocalStorage) sehingga aman dan cepat.</p>
       </div>
     </main>
 
@@ -360,9 +339,6 @@ input[type="file"] {
     <button id="btnAddChild">➕ Tambah Anak</button>
 </div>
 
-<div id="imagePreviewModal" class="modal" aria-hidden="true" onclick="closeImagePreview()">
-    <img id="previewImage" src="" alt="Preview Gambar Riwayat">
-</div>
 <div class="modal-overlay"></div>
 
 
@@ -480,6 +456,8 @@ function renderChildSelector() {
 
 // --- MODAL MANAGEMENT ---
 const manageChildModal = document.getElementById('manageChildModal');
+const authModal = document.getElementById('authModal');
+const modalOverlay = document.querySelector('.modal-overlay');
 
 document.getElementById('btnManageChildren').addEventListener('click', () => {
     if (!currentUser || currentRole === 'admin') return;
@@ -644,11 +622,6 @@ function showToast(message, type = 'info') {
 }
 
 // --- MODAL & PREVIEW FUNCTIONS ---
-const imagePreviewModal = document.getElementById('imagePreviewModal');
-const previewImage = document.getElementById('previewImage');
-const authModal = document.getElementById('authModal');
-const modalOverlay = document.querySelector('.modal-overlay');
-
 function openModal(modalEl) {
     modalEl.classList.add('open');
     modalEl.setAttribute('aria-hidden', 'false');
@@ -663,23 +636,12 @@ function closeModal(modalEl) {
     }
 }
 
-function openImagePreview(src) {
-    if (!src || src.includes('No Photo')) return; 
-    previewImage.src = src;
-    openModal(imagePreviewModal);
-}
-
-function closeImagePreview() {
-    closeModal(imagePreviewModal);
-    previewImage.src = ''; 
-}
-document.getElementById('overlay').addEventListener('click', ()=>{ closeSidebar(); closeModal(authModal); closeModal(imagePreviewModal); closeModal(manageChildModal); });
+document.getElementById('overlay').addEventListener('click', ()=>{ closeSidebar(); closeModal(authModal); closeModal(manageChildModal); });
 
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         if(authModal.classList.contains('open')) closeModal(authModal);
         if(manageChildModal.classList.contains('open')) closeModal(manageChildModal);
-        if(imagePreviewModal.classList.contains('open')) closeImagePreview();
         if(sidebar.classList.contains('open')) closeSidebar();
     }
 });
@@ -822,16 +784,7 @@ function renderWho(){
 
 
 // Input save
-async function fileToBase64(file){ 
-    return new Promise((res,rej)=>{ 
-        const r=new FileReader(); 
-        r.onload=()=>res(r.result); 
-        r.onerror=rej; 
-        r.readAsDataURL(file); 
-    }); 
-}
-
-// FUNGSI btnSave YANG SUDAH DIPERBAIKI (PERHATIAN: Menggantikan fungsi sebelumnya)
+// FUNGSI btnSave YANG SUDAH DIREVISI (TANPA FOTO)
 document.getElementById('btnSave').addEventListener('click', async ()=>{
   // 1. Validasi Awal
   if(!currentUser || currentRole === 'admin'){ showToast('Silakan login sebagai user biasa untuk menyimpan data', 'error'); return; }
@@ -847,7 +800,6 @@ document.getElementById('btnSave').addEventListener('click', async ()=>{
   const tinggi = document.getElementById('tinggi').value; 
   const berat = document.getElementById('berat').value; 
   const catatan = document.getElementById('catatan').value.trim(); 
-  const fotoFile = document.getElementById('foto').files[0];
   
   // 4. Validasi Input Data
   if(!tinggi || !berat){ showToast('Lengkapi data penting (Tinggi & Berat)', 'error'); return; }
@@ -860,27 +812,11 @@ document.getElementById('btnSave').addEventListener('click', async ()=>{
     usia_bulan: calculateAge(childData.dob), 
     tinggi: Number(tinggi), 
     berat: Number(berat), 
-    catatan: catatan, 
-    foto: null // Default null
+    catatan: catatan
+    // PROPERTI FOTO DIHILANGKAN
   };
   
-  // 6. Penanganan Foto (Error Handling)
-  if(fotoFile) {
-      if(fotoFile.size > 2 * 1024 * 1024) { 
-          showToast('Ukuran foto terlalu besar (Max 2MB).', 'error');
-          return; // Hentikan proses
-      }
-      try {
-        // Konversi file ke Base64
-        entry.foto = await fileToBase64(fotoFile); 
-      } catch (e) {
-        console.error("Gagal mengkonversi file:", e);
-        showToast('Gagal memproses foto. Silakan coba lagi tanpa foto.', 'error');
-        return; // Hentikan proses jika konversi gagal
-      }
-  }
-  
-  // 7. Proses Penyimpanan ke Local Storage
+  // 6. Proses Penyimpanan ke Local Storage
   // Inisialisasi array data jika belum ada (PENTING untuk mencegah bug data)
   if (!users[currentUser].children[currentChildId].data) {
       users[currentUser].children[currentChildId].data = [];
@@ -891,14 +827,13 @@ document.getElementById('btnSave').addEventListener('click', async ()=>{
   saveUsers(users); 
   showToast('Data perkembangan tersimpan', 'success'); 
   
-  // 8. Render Ulang UI dan Bersihkan Form
+  // 7. Render Ulang UI dan Bersihkan Form
   renderList(); 
   renderChart(); 
   
   document.getElementById('tinggi').value=''; 
   document.getElementById('berat').value=''; 
   document.getElementById('catatan').value=''; 
-  document.getElementById('foto').value='';
 });
 
 // Data list (grid)
@@ -913,7 +848,6 @@ function renderList(){
   if(!entries.length) { list.innerHTML = '<div class="data-small">Belum ada data perkembangan untuk anak ini.</div>'; return; }
   
   entries.slice().reverse().forEach(e=>{ 
-    const fotoSrc = e.foto||'data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"320\" height=\"180\" viewBox=\"0 0 320 180\"><rect width=\"100%\" height=\"100%\" fill=\"%23eef4ff\"/><text x=\"50%\" y=\"50%\" font-family=\"Inter\" font-size=\"24\" fill=\"%234f46e5\" text-anchor=\"middle\" dominant-baseline=\"middle\">No Photo</text></svg>';
     
     const d = document.createElement('div'); d.className = 'card-grid'; 
     
@@ -922,7 +856,9 @@ function renderList(){
     const statusBadge = `<span class="status-badge ${statusResult.class}" style="margin-top: 0; margin-bottom: 0;">${statusResult.status}</span>`;
 
     d.innerHTML = `
-        <img src="${fotoSrc}" alt="Foto ${getCurrentChildData().name}" onclick="openImagePreview('${fotoSrc}')">
+        <div class="placeholder-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2Z"/><path d="M12 8V16"/><path d="M8 12H16"/></svg>
+        </div>
         <div class="info">
             <strong>${getCurrentChildData().name}</strong>
             ${statusBadge}
@@ -991,7 +927,7 @@ function renderChart(){
     statusEl.className = `status-badge ${statusResult.class}`;
 
 
-    const labels = data.map(d => String(d.usia_bulan));
+    const labels = data.map(d => String(d.tanggal_input));
     const tinggi = data.map(d => d.tinggi);
     const berat = data.map(d => d.berat);
 
@@ -1032,7 +968,7 @@ function renderChart(){
         },
         scales: {
           x: {
-              title: { display: true, text: 'Usia (bulan)', font: { size: 14, weight: 'bold' } }, ticks: { font: { size: 12 } }
+              title: { display: true, text: 'Tanggal Input', font: { size: 14, weight: 'bold' } }, ticks: { font: { size: 12 } }
           },
           y: { 
               beginAtZero: true,
@@ -1062,9 +998,9 @@ document.getElementById('btnExportCSV').addEventListener('click', () => {
         return;
     }
 
-    // Filter data untuk CSV (hapus field 'foto' yang berisi Base64 string panjang)
+    // Filter data untuk CSV
     const dataToExport = data.map(entry => {
-        const { foto, id, ...rest } = entry;
+        const { id, ...rest } = entry;
         return rest;
     });
 
@@ -1107,7 +1043,7 @@ function initListeners() {
       renderAdminStats(); 
     });
     
-    // FUNGSI btnLogin YANG SUDAH DIPERBAIKI (PERHATIAN: Menggantikan fungsi sebelumnya)
+    // FUNGSI btnLogin
     document.getElementById('btnLogin').addEventListener('click', ()=>{
       const u = document.getElementById('loginUser').value.trim(); const p = document.getElementById('loginPass').value; if(!u||!p){ showToast('Isi username & password', 'error'); return; }
       const users = getUsers(); 
@@ -1165,4 +1101,4 @@ window.addEventListener('resize', ()=> {
 });
 </script>
 </body>
-  </html>
+      </html>
