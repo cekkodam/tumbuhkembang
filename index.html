@@ -1,291 +1,291 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FARESTA - Laporan Tumbuh Kembang Faresta</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FARESTA - Laporan Tumbuh Kembang Faresta</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
 
-    <style>
-        /* ===== RESET ===== */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+    <style>
+        /* ===== RESET ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; } 
 
-        body {
-            font-family: "Poppins", Arial, sans-serif;
-            background: #f0f2f5;
-            color: #333;
-            overflow-x: hidden;
-        }
+        body {
+            font-family: "Poppins", Arial, sans-serif;
+            background: #f0f2f5;
+            color: #333;
+            overflow-x: hidden;
+        } 
 
-        /* ===== SIDEBAR ===== */
-        .sidebar {
-            width: 260px;
-            height: 100vh;
-            background: linear-gradient(180deg, #4b7bec, #3867d6);
-            position: fixed;
-            top: 0; left: -260px;
-            padding: 25px;
-            transition: 0.4s ease;
-            color: white;
-            z-index: 1000;
-        }
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            background: linear-gradient(180deg, #4b7bec, #3867d6);
+            position: fixed;
+            top: 0; left: -260px;
+            padding: 25px;
+            transition: 0.4s ease;
+            color: white;
+            z-index: 1000;
+        } 
 
-        .sidebar.open { left: 0; }
+        .sidebar.open { left: 0; } 
 
-        .sidebar h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 26px;
-            letter-spacing: 1px;
-        }
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 26px;
+            letter-spacing: 1px;
+        } 
 
-        .sidebar a {
-            display: block;
-            padding: 12px 15px;
-            margin-bottom: 10px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 8px;
-            color: white;
-            text-decoration: none;
-            font-size: 16px;
-            transition: 0.3s;
-        }
+        .sidebar a {
+            display: block;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            transition: 0.3s;
+        } 
 
-        .sidebar a:hover {
-            background: rgba(255,255,255,0.35);
-            transform: scale(1.05);
-        }
+        .sidebar a:hover {
+            background: rgba(255,255,255,0.35);
+            transform: scale(1.05);
+        } 
 
-        /* ===== SIDEBAR TOGGLE BUTTON ===== */
-        .sidebar-toggle {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            background: #3867d6;
-            color: white;
-            padding: 10px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            z-index: 1100;
-            font-size: 18px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-        }
+        /* ===== SIDEBAR TOGGLE BUTTON ===== */
+        .sidebar-toggle {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background: #3867d6;
+            color: white;
+            padding: 10px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            z-index: 1100;
+            font-size: 18px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        } 
 
-        /* ===== HEADER ===== */
-        header {
-            background: linear-gradient(135deg, #3867d6, #4b7bec, #45aaf2);
-            padding: 70px 20px;
-            text-align: center;
-            color: white;
-            border-bottom-left-radius: 50px;
-            border-bottom-right-radius: 50px;
-            margin-left: 0;
-            transition: 0.4s;
-        }
+        /* ===== HEADER ===== */
+        header {
+            background: linear-gradient(135deg, #3867d6, #4b7bec, #45aaf2);
+            padding: 70px 20px;
+            text-align: center;
+            color: white;
+            border-bottom-left-radius: 50px;
+            border-bottom-right-radius: 50px;
+            margin-left: 0;
+            transition: 0.4s;
+        } 
 
-        .container {
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 20px;
-        }
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+        } 
 
-        h2 { margin: 15px 0; }
+        h2 { margin: 15px 0; } 
 
-        input, textarea, select, button {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            margin-bottom: 12px;
-            font-size: 15px;
-        }
+        input, textarea, select, button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            margin-bottom: 12px;
+            font-size: 15px;
+        } 
 
-        button {
-            background: #3867d6;
-            color: white;
-            cursor: pointer;
-            transition: 0.3s;
-            font-weight: bold;
-        }
+        button {
+            background: #3867d6;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+        } 
 
-        button:hover { background: #274e91; }
+        button:hover { background: #274e91; } 
 
-        /* ===== CARD DATA ===== */
-        .data-card {
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            margin-bottom: 15px;
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
+        /* ===== CARD DATA ===== */
+        .data-card {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        } 
 
-        .data-card img {
-            width: 120px;
-            height: 120px;
-            object-fit: contain;
-            background: white;
-            border: 1px solid #ddd;
-            padding: 5px;
-            border-radius: 10px;
-        }
+        .data-card img {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            background: white;
+            border: 1px solid #ddd;
+            padding: 5px;
+            border-radius: 10px;
+        } 
 
-        @media (max-width: 768px) {
-            .data-card { flex-direction: column; text-align: center; }
-            .sidebar { width: 230px; left: -230px; }
-            .sidebar.open { left: 0; }
-        }
-    </style>
-</head>
+        @media (max-width: 768px) {
+            .data-card { flex-direction: column; text-align: center; }
+            .sidebar { width: 230px; left: -230px; }
+            .sidebar.open { left: 0; }
+        }
+    </style>
+</head> 
 
-<body>
+<body> 
 
 <!-- SIDEBAR TOGGLE -->
-<div class="sidebar-toggle" onclick="toggleSidebar()">☰ Menu</div>
+<div class="sidebar-toggle" onclick="toggleSidebar()">☰ Menu</div> 
 
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
-    <h2>FARESTA</h2>
-    <a href="#home">Home</a>
-    <a href="#input">Input Data</a>
-    <a href="#data">Data Tersimpan</a>
-    <a href="#grafik">Grafik Pertumbuhan</a>
-    <a href="#tentang">Tentang Website</a>
-</div>
+    <h2>FARESTA</h2>
+    <a href="#home">Home</a>
+    <a href="#input">Input Data</a>
+    <a href="#data">Data Tersimpan</a>
+    <a href="#grafik">Grafik Pertumbuhan</a>
+    <a href="#tentang">Tentang Website</a>
+</div> 
 
 <!-- HEADER -->
 <header id="home">
-    <h1>Laporan Tumbuh Kembang Faresta</h1>
-    <p>Pantau perkembangan Faresta dengan mudah dan modern.</p>
-</header>
+    <h1>Laporan Tumbuh Kembang Faresta</h1>
+    <p>Pantau perkembangan Faresta dengan mudah dan modern.</p>
+</header> 
 
-<div class="container">
+<div class="container"> 
 
-    <!-- FORM INPUT -->
-    <h2 id="input">Input Data Anak</h2>
+    <!-- FORM INPUT -->
+    <h2 id="input">Input Data Anak</h2> 
 
-    <form id="dataForm">
-        <input type="text" id="nama" placeholder="Nama Anak" required>
-        <input type="date" id="tanggalLahir" required>
-        <input type="number" id="usia" placeholder="Usia (bulan)" required>
-        <input type="number" id="tinggi" step="0.1" placeholder="Tinggi (cm)" required>
-        <input type="number" id="berat" step="0.1" placeholder="Berat (kg)" required>
-        <textarea id="perkembangan" rows="3" placeholder="Catatan perkembangan..."></textarea>
-        <input type="file" id="foto" accept="image/*">
-        <button type="submit">Simpan Data</button>
-    </form>
+    <form id="dataForm">
+        <input type="text" id="nama" placeholder="Nama Anak" required>
+        <input type="date" id="tanggalLahir" required>
+        <input type="number" id="usia" placeholder="Usia (bulan)" required>
+        <input type="number" id="tinggi" step="0.1" placeholder="Tinggi (cm)" required>
+        <input type="number" id="berat" step="0.1" placeholder="Berat (kg)" required>
+        <textarea id="perkembangan" rows="3" placeholder="Catatan perkembangan..."></textarea>
+        <input type="file" id="foto" accept="image/*">
+        <button type="submit">Simpan Data</button>
+    </form> 
 
-    <!-- GRAFIK -->
-    <h2 id="grafik">Grafik Pertumbuhan</h2>
-    <canvas id="growthChart" style="background:white; border-radius:10px; padding:10px;"></canvas>
+    <!-- GRAFIK -->
+    <h2 id="grafik">Grafik Pertumbuhan</h2>
+    <canvas id="growthChart" style="background:white; border-radius:10px; padding:10px;"></canvas> 
 
-    <!-- DATA TERSIMPAN -->
-    <h2 id="data">Data Tersimpan</h2>
-    <div id="dataList"></div>
+    <!-- DATA TERSIMPAN -->
+    <h2 id="data">Data Tersimpan</h2>
+    <div id="dataList"></div> 
 
-    <!-- TENTANG -->
-    <h2 id="tentang">Tentang Website</h2>
-    <p>
-        FARESTA adalah sistem pelaporan tumbuh kembang anak modern.
-        Anda dapat menyimpan data perkembangan, foto, grafik pertumbuhan,
-        dan memantau perubahan secara visual.  
-    </p>
+    <!-- TENTANG -->
+    <h2 id="tentang">Tentang Website</h2>
+    <p>
+        FARESTA adalah sistem pelaporan tumbuh kembang anak modern.
+        Anda dapat menyimpan data perkembangan, foto, grafik pertumbuhan,
+        dan memantau perubahan secara visual.  
+    </p> 
 
-</div>
+</div> 
 
 <script>
-    // SIDEBAR OPEN/CLOSE
-    function toggleSidebar() {
-        document.getElementById("sidebar").classList.toggle("open");
-    }
+    // SIDEBAR OPEN/CLOSE
+    function toggleSidebar() {
+        document.getElementById("sidebar").classList.toggle("open");
+    } 
 
-    const form = document.getElementById('dataForm');
-    const dataList = document.getElementById('dataList');
+    const form = document.getElementById('dataForm');
+    const dataList = document.getElementById('dataList'); 
 
-    let data = JSON.parse(localStorage.getItem('anakData')) || [];
+    let data = JSON.parse(localStorage.getItem('anakData')) || []; 
 
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
+    form.addEventListener('submit', function(e) {
+        e.preventDefault(); 
 
-        const nama = document.getElementById('nama').value;
-        const tanggalLahir = document.getElementById('tanggalLahir').value;
-        const usia = parseInt(document.getElementById('usia').value);
-        const tinggi = parseFloat(document.getElementById('tinggi').value);
-        const berat = parseFloat(document.getElementById('berat').value);
-        const perkembangan = document.getElementById('perkembangan').value;
-        const fotoFile = document.getElementById('foto').files[0];
+        const nama = document.getElementById('nama').value;
+        const tanggalLahir = document.getElementById('tanggalLahir').value;
+        const usia = parseInt(document.getElementById('usia').value);
+        const tinggi = parseFloat(document.getElementById('tinggi').value);
+        const berat = parseFloat(document.getElementById('berat').value);
+        const perkembangan = document.getElementById('perkembangan').value;
+        const fotoFile = document.getElementById('foto').files[0]; 
 
-        let fotoBase64 = null;
+        let fotoBase64 = null; 
 
-        if (fotoFile) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                fotoBase64 = e.target.result;
-                simpan();
-            };
-            r eader.readAsDataURL(fotoFile);
-        } else {
-            simpan();
-        }
+        if (fotoFile) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                fotoBase64 = e.target.result;
+                simpan();
+            };
+            reader.readAsDataURL(fotoFile);
+        } else {
+            simpan();
+        } 
 
-        function simpan() {
-            data.push({ nama, tanggalLahir, usia, tinggi, berat, perkembangan, foto: fotoBase64 });
-            localStorage.setItem('anakData', JSON.stringify(data));
-            form.reset();
-            updateDisplay();
-        }
-    });
+        function simpan() {
+            data.push({ nama, tanggalLahir, usia, tinggi, berat, perkembangan, foto: fotoBase64 });
+            localStorage.setItem('anakData', JSON.stringify(data));
+            form.reset();
+            updateDisplay();
+        }
+    }); 
 
-    let chart;
+    let chart; 
 
-    function updateDisplay() {
-        dataList.innerHTML = "";
+    function updateDisplay() {
+        dataList.innerHTML = ""; 
 
-        let usiaLabels = [], tinggiData = [], beratData = [];
+        let usiaLabels = [], tinggiData = [], beratData = []; 
 
-        data.forEach((item) => {
-            const card = document.createElement("div");
-            card.className = "data-card";
+        data.forEach((item) => {
+            const card = document.createElement("div");
+            card.className = "data-card"; 
 
-            const img = document.createElement("img");
-            img.src = item.foto || "https://via.placeholder.com/120";
-            card.appendChild(img);
+            const img = document.createElement("img");
+            img.src = item.foto || "https://via.placeholder.com/120";
+            card.appendChild(img); 
 
-            const text = document.createElement("div");
-            text.innerHTML = `
-                <strong>${item.nama}</strong><br>
-                Usia: ${item.usia} bulan<br>
-                Tinggi: ${item.tinggi} cm - Berat: ${item.berat} kg<br>
-                <em>${item.perkembangan}</em>
-            `;
-            card.appendChild(text);
+            const text = document.createElement("div");
+            text.innerHTML = `
+                <strong>${item.nama}</strong><br>
+                Usia: ${item.usia} bulan<br>
+                Tinggi: ${item.tinggi} cm - Berat: ${item.berat} kg<br>
+                <em>${item.perkembangan}</em>
+            `;
+            card.appendChild(text); 
 
-            dataList.appendChild(card);
+            dataList.appendChild(card); 
 
-            usiaLabels.push(item.usia);
-            tinggiData.push(item.tinggi);
-            beratData.push(item.berat);
-        });
+            usiaLabels.push(item.usia);
+            tinggiData.push(item.tinggi);
+            beratData.push(item.berat);
+        }); 
 
-        if (chart) chart.destroy();
+        if (chart) chart.destroy(); 
 
-        const ctx = document.getElementById("growthChart");
-        chart = new Chart(ctx, {
-            type: "line",
-            data: {
-                labels: usiaLabels,
-                datasets: [
-                    { label: "Tinggi (cm)", data: tinggiData, borderColor: "#3867d6", tension: 0.3 },
-                    { label: "Berat (kg)", data: beratData, borderColor: "#fa8231", tension: 0.3 }
-                ]
-            }
-        });
-    }
+        const ctx = document.getElementById("growthChart");
+        chart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: usiaLabels,
+                datasets: [
+                    { label: "Tinggi (cm)", data: tinggiData, borderColor: "#3867d6", tension: 0.3 },
+                    { label: "Berat (kg)", data: beratData, borderColor: "#fa8231", tension: 0.3 }
+                ]
+            }
+        });
+    } 
 
-    updateDisplay();
-</script>
+    updateDisplay();
+</script> 
 
 </body>
-    </html>
+</html>
