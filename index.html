@@ -66,9 +66,9 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,'Segoe 
     height: 100%;
     width: 300px; 
     object-fit: cover;
-    opacity: 0.8; /* Slight increase in opacity */
+    opacity: 0.8; 
     border-radius: 0 10px 10px 0;
-    mix-blend-mode: multiply; /* Optional: Adjust blending for color */
+    mix-blend-mode: multiply; 
 }
 
 .field{margin-top:14px}
@@ -100,6 +100,31 @@ button.ghost:hover{background:var(--primary-bg)}
 }
 .delete-btn:hover { background: #cc3333; }
 
+/* Admin Dashboard styles */
+.admin-stats {
+    display: flex;
+    gap: 16px;
+    margin-top: 16px;
+}
+.stat-box {
+    flex: 1;
+    padding: 16px;
+    border-radius: 10px;
+    background: var(--primary-bg);
+    border: 1px solid #e0e7ff;
+    text-align: center;
+}
+.stat-box .count {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--primary);
+}
+.stat-box .label {
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 4px;
+}
+
 /* --- Modal --- */
 .modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:200;background:#fff;padding:24px;border-radius:16px;box-shadow:0 20px 50px rgba(15,23,42,.25);width:360px;max-width:94vw;display:none;opacity:0;transition:opacity .3s ease, transform .3s ease}
 .modal.open{display:block;opacity:1;transform:translate(-50%,-50%)}
@@ -128,6 +153,7 @@ button.ghost:hover{background:var(--primary-bg)}
   #sidebar{width:180px}
   .banner-image { display: none; } /* Hide image on small screens */
   #toastContainer{right:10px;top:10px}
+  .admin-stats { flex-direction: column; }
 }
 </style>
 </head>
@@ -146,7 +172,7 @@ button.ghost:hover{background:var(--primary-bg)}
   <div class="panel" id="sidebarPanel" style="display:none">
     <a href="#home" data-nav>🏡 Beranda</a>
     <a href="#" id="openAuth" class="menu-login">🔑 Login / Register</a>
-    <a href="#dashboard" data-nav class="admin-only">⚙️ Dashboard Admin</a>
+    <a href="#dashboard" data-nav id="adminLink" class="admin-only">⚙️ Dashboard Admin</a>
     <a href="#about" data-nav>💡 Tentang</a>
     <a href="#" id="btnLogout" style="display:none">🚪 Logout</a>
   </div>
@@ -166,13 +192,27 @@ button.ghost:hover{background:var(--primary-bg)}
   </div>
 
   <div class="row">
-    <main>
+    <main id="mainContent">
       <div class="banner" id="banner">
         <div class="left">Ringkasan Perkembangan</div>
         <div class="right">Data tersimpan lokal • Multi-user • Responsive</div>
-        <img class="banner-image" src="images.jpeg" alt="Ilustrasi anak bermain perosotan" />
+        <img class="banner-image" src="https://img.sanishtech.com/u/315fe4c8c5e179a34f0b6677c5001426.jpg" alt="Foto anak bermain di taman" />
       </div>
 
+      <div class="card admin-only" id="adminDashboard" style="display:none; margin-bottom: 20px;">
+        <h4>📊 Dashboard Admin</h4>
+        <div class="admin-stats">
+            <div class="stat-box">
+                <div class="count" id="statUsers">0</div>
+                <div class="label">Total User Terdaftar</div>
+            </div>
+            <div class="stat-box">
+                <div class="count" id="statVisits">0</div>
+                <div class="label">Total Kunjungan Website</div>
+            </div>
+        </div>
+      </div>
+      
       <div class="card" id="inputSection">
         <h4>Input Data Perkembangan Anak</h4>
         <div class="data-small" id="whoInfo">Belum login</div>
@@ -197,7 +237,7 @@ button.ghost:hover{background:var(--primary-bg)}
       </div>
     </main>
 
-    <aside>
+    <aside id="asideContent">
       <div class="card" id="authCard">
         <h4>Data Tersimpan (Riwayat)</h4>
         <div id="dataList" class="grid"></div>
@@ -221,6 +261,32 @@ button.ghost:hover{background:var(--primary-bg)}
 </div>
 
 <script>
+// --- GLOBAL CONSTANTS & HELPERS ---
+const USERS_KEY = 'faresta_users_v3';
+const VISIT_COUNT_KEY = 'faresta_visit_count_v1';
+const getUsers = ()=> JSON.parse(localStorage.getItem(USERS_KEY) || '{}');
+const saveUsers = u=> localStorage.setItem(USERS_KEY, JSON.stringify(u));
+let currentUser = null; 
+let currentRole = null; 
+
+// --- VISIT COUNTER ---
+function countVisit() {
+    let count = parseInt(localStorage.getItem(VISIT_COUNT_KEY) || '0');
+    count += 1;
+    localStorage.setItem(VISIT_COUNT_KEY, count);
+}
+
+// --- INITIAL SETUP: Ensure Admin Exists ---
+(function(){ 
+    const u=getUsers(); 
+    if(!u.admin){ 
+        u.admin={password:'admin123',data:[]}; 
+        saveUsers(u); 
+    }
+    countVisit(); // Count every load as a visit
+})();
+
+
 // --- TOAST NOTIFICATION FUNCTION ---
 function showToast(message, type = 'info') {
     const container = document.getElementById('toastContainer');
@@ -234,15 +300,13 @@ function showToast(message, type = 'info') {
     toast.innerHTML = `<span class="icon">${icon}</span><span class="message">${message}</span>`;
     container.appendChild(toast);
     
-    // Show animation
     setTimeout(() => {
         toast.classList.add('show');
     }, 50);
 
-    // Hide animation and remove
     setTimeout(() => {
         toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 300); // Wait for transition
+        setTimeout(() => toast.remove(), 300); 
     }, 4000);
 }
 
@@ -252,21 +316,18 @@ function calculateAge(birthDate) {
     const today = new Date();
     const dob = new Date(birthDate);
 
-    // Calculate age in total months
     let months = (today.getFullYear() - dob.getFullYear()) * 12;
     months -= dob.getMonth();
     months += today.getMonth();
 
-    // Adjust if current day is before DOB day
     if (today.getDate() < dob.getDate()) {
         months -= 1;
     }
 
-    // Ensure the result is non-negative
     return months > 0 ? months : 0;
 }
 
-// --- DELETE FUNCTION ---
+// --- DATA ACTIONS ---
 function deleteEntry(id) {
     if (!currentUser || currentRole === 'admin') {
         showToast('Aksi ditolak. Silakan login sebagai pengguna.', 'error');
@@ -281,7 +342,6 @@ function deleteEntry(id) {
     const users = getUsers();
     let data = users[currentUser]?.data || [];
     
-    // Find index of entry with matching ID (ID is the timestamp)
     const initialLength = data.length;
     data = data.filter(entry => entry.id !== id);
     
@@ -298,22 +358,16 @@ function deleteEntry(id) {
     renderChart();
 }
 
-// --- STORAGE & AUTH HELPERS ---
-const USERS_KEY = 'faresta_users_v3';
-const getUsers = ()=> JSON.parse(localStorage.getItem(USERS_KEY) || '{}');
-const saveUsers = u=> localStorage.setItem(USERS_KEY, JSON.stringify(u));
-// ensure admin
-(function(){ const u=getUsers(); if(!u.admin){ u.admin={password:'admin123',data:[]}; saveUsers(u); }})();
 
-let currentUser = null; // username
-let currentRole = null; // 'admin'|'user'
-
+// --- UI ELEMENTS ---
 const sidebarBtn = document.getElementById('sidebarBtn');
 const sidebar = document.getElementById('sidebar');
 const sidebarPanel = document.getElementById('sidebarPanel');
 const overlay = document.getElementById('overlay');
 const authModal = document.getElementById('authModal');
 const authTitle = document.getElementById('authTitle');
+const adminDashboard = document.getElementById('adminDashboard');
+const inputSection = document.getElementById('inputSection');
 
 // Sidebar open/close
 function openSidebar(){ sidebar.classList.add('open'); sidebarPanel.style.display='block'; overlay.classList.add('show'); }
@@ -326,8 +380,22 @@ function openAuth(mode='login'){ authTitle.innerText = mode==='login' ? 'Login' 
 }
 function closeAuth(){ authModal.classList.remove('open'); authModal.setAttribute('aria-hidden','true'); }
 
+// --- ADMIN STATS ---
+function getAdminStats() {
+    const users = getUsers();
+    const userCount = Object.keys(users).length; 
+    const visitCount = parseInt(localStorage.getItem(VISIT_COUNT_KEY) || '0');
+    return { userCount: userCount, visitCount: visitCount };
+}
 
-function renderAuth(){ // update UI after login/logout
+function renderAdminStats() {
+    const stats = getAdminStats();
+    document.getElementById('statUsers').innerText = stats.userCount;
+    document.getElementById('statVisits').innerText = stats.visitCount;
+}
+
+// --- RENDER FUNCTIONS ---
+function renderAuth(){ 
   const accountArea = document.getElementById('accountArea');
   if(currentUser){ 
     accountArea.innerHTML = `<div style="font-weight:700">${currentUser}</div><div class="data-small">${currentRole}</div>`; 
@@ -339,14 +407,29 @@ function renderAuth(){ // update UI after login/logout
     document.getElementById('btnLogout').style.display='none'; 
     document.querySelectorAll('.menu-login').forEach(x=>x.style.display='block'); 
   }
-  document.querySelectorAll('.admin-only').forEach(el=> el.style.display = (currentRole==='admin')? 'block' : 'none');
+  
+  // Toggle Admin Dashboard visibility
+  const adminLinks = document.querySelectorAll('.admin-only');
+  adminLinks.forEach(el=> el.style.display = (currentRole==='admin')? 'block' : 'none');
+  
+  if (currentRole === 'admin') {
+      inputSection.style.display = 'none';
+      adminDashboard.style.display = 'block';
+      renderAdminStats();
+  } else {
+      inputSection.style.display = 'block';
+      adminDashboard.style.display = 'none';
+  }
 }
+
+function renderWho(){ document.getElementById('whoInfo').innerText = currentUser ? `Masuk sebagai ${currentUser} (${currentRole})` : 'Belum login'; }
+
 
 // Input save
 async function fileToBase64(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); }
 
 document.getElementById('btnSave').addEventListener('click', async ()=>{
-  if(!currentUser){ showToast('Silakan login terlebih dahulu', 'error'); return; }
+  if(!currentUser || currentRole === 'admin'){ showToast('Silakan login sebagai user biasa untuk menyimpan data', 'error'); return; }
   const nama = document.getElementById('nama').value.trim(); 
   const usia = document.getElementById('usia').value; 
   const tanggalLahir = document.getElementById('tanggalLahir').value; 
@@ -361,7 +444,7 @@ document.getElementById('btnSave').addEventListener('click', async ()=>{
   const entry = { id:Date.now(), nama, usia:Number(usia), tanggalLahir, tinggi:Number(tinggi), berat:Number(berat), catatan, foto:null };
   
   if(fotoFile) {
-      if(fotoFile.size > 2 * 1024 * 1024) { // Max 2MB
+      if(fotoFile.size > 2 * 1024 * 1024) { 
           showToast('Ukuran foto terlalu besar (Max 2MB)', 'error');
           return;
       }
@@ -384,13 +467,11 @@ document.getElementById('btnSave').addEventListener('click', async ()=>{
   document.getElementById('foto').value='';
 });
 
-function renderWho(){ document.getElementById('whoInfo').innerText = currentUser ? `Masuk sebagai ${currentUser} (${currentRole})` : 'Belum login'; }
-
 // Data list (grid)
 function renderList(){ 
   const list = document.getElementById('dataList'); list.innerHTML=''; 
   if(!currentUser){ list.innerHTML = '<div class="data-small">Login untuk melihat data tersimpan.</div>'; return; } 
-  if(currentRole === 'admin'){ list.innerHTML = '<div class="data-small">Mode Admin tidak menyimpan data perkembangan anak.</div>'; return; }
+  if(currentRole === 'admin'){ list.innerHTML = '<div class="data-small">Dashboard Admin tidak menampilkan riwayat data perkembangan.</div>'; return; }
 
   const users = getUsers(); 
   const entries = users[currentUser]?.data || []; 
@@ -400,7 +481,6 @@ function renderList(){
     const d = document.createElement('div'); d.className = 'card-grid'; 
     const fotoSrc = e.foto||'data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"320\" height=\"180\" viewBox=\"0 0 320 180\"><rect width=\"100%\" height=\"100%\" fill=\"%23eef4ff\"/><text x=\"50%\" y=\"50%\" font-family=\"Inter\" font-size=\"24\" fill=\"%234f46e5\" text-anchor=\"middle\" dominant-baseline=\"middle\">No Photo</text></svg>';
     
-    // Add delete button with onClick event using the entry ID
     d.innerHTML = `
         <img src="${fotoSrc}" alt="Foto ${e.nama}">
         <div class="info">
@@ -421,7 +501,6 @@ function renderChart(){
     const canvas = document.getElementById('growthChart');
     if(!canvas) return;
 
-    // Destroy existing chart instance
     const existing = Chart.getChart(canvas);
     if(existing){ existing.destroy(); }
     
@@ -429,7 +508,6 @@ function renderChart(){
     if(!ctx) return;
 
     if(!currentUser || currentRole === 'admin'){
-      // empty placeholder chart
       chart = new Chart(ctx, {
         type: 'line',
         data: { labels: ['0'], datasets: [ { label: 'Tinggi (cm)', data: [0], borderColor: '#d1d5db', tension: 0.4 }, { label: 'Berat (kg)', data: [0], borderColor: '#9ca3af', tension: 0.4 } ] },
@@ -446,11 +524,9 @@ function renderChart(){
     const users = getUsers();
     const data = (users[currentUser] && users[currentUser].data) ? users[currentUser].data.slice() : [];
     
-    // Sort by usia for a correct chart
     data.sort((a,b)=>a.usia - b.usia); 
 
     if(!data.length){
-      // show empty axes
       chart = new Chart(ctx, {
         type: 'line',
         data: { labels: ['0'], datasets: [ { label: 'Tinggi (cm)', data: [0], borderColor: '#4f46e5', tension: 0.4 }, { label: 'Berat (kg)', data: [0], borderColor: '#ff8c42', tension: 0.4 } ] },
@@ -464,7 +540,6 @@ function renderChart(){
       return;
     }
 
-    // use usia as labels
     const labels = data.map(d => String(d.usia));
     const tinggi = data.map(d => d.tinggi);
     const berat = data.map(d => d.berat);
@@ -534,8 +609,7 @@ function initListeners() {
         }
     });
     
-    // Sidebar and Modal Listeners (centralized)
-    // Sidebar:
+    // Sidebar Navigation:
     sidebarBtn.addEventListener('click', (e)=>{ e.stopPropagation(); if(sidebar.classList.contains('open')) closeSidebar(); else openSidebar(); });
     overlay.addEventListener('click', ()=>{ closeSidebar(); closeAuth(); });
     document.addEventListener('click', (e)=>{ if(!sidebar.contains(e.target) && !sidebarBtn.contains(e.target) && sidebar.classList.contains('open')) closeSidebar(); });
@@ -550,17 +624,28 @@ function initListeners() {
       const u = document.getElementById('regUser').value.trim(); const p = document.getElementById('regPass').value; if(!u||!p){ showToast('Isi username & password', 'error'); return; }
       const users = getUsers(); if(users[u]){ showToast('Username sudah ada', 'error'); return; }
       users[u] = { password: p, data: [] }; saveUsers(users); showToast('Akun dibuat — silakan login', 'success'); openAuth('login'); document.getElementById('regUser').value=''; document.getElementById('regPass').value='';
+      renderAdminStats(); // Update admin stats when a new user registers
     });
     document.getElementById('btnLogin').addEventListener('click', ()=>{
       const u = document.getElementById('loginUser').value.trim(); const p = document.getElementById('loginPass').value; if(!u||!p){ showToast('Isi username & password', 'error'); return; }
       const users = getUsers(); 
       if(u==='admin' && p==='admin123'){ 
-        currentUser='admin'; currentRole='admin'; closeAuth(); closeSidebar(); renderAuth(); renderList(); renderChart(); showToast('Login Admin berhasil', 'success'); return; 
+        currentUser='admin'; currentRole='admin'; closeAuth(); closeSidebar(); renderAuth(); renderList(); renderChart(); renderWho(); showToast('Login Admin berhasil', 'success'); return; 
       }
       if(!users[u] || users[u].password !== p){ showToast('Username / password salah', 'error'); return; }
       currentUser = u; currentRole = 'user'; closeAuth(); closeSidebar(); renderAuth(); renderList(); renderChart(); renderWho(); showToast('Login berhasil', 'success');
     });
     document.getElementById('btnLogout').addEventListener('click', ()=>{ currentUser=null; currentRole=null; renderAuth(); renderList(); renderChart(); renderWho(); showToast('Logout berhasil', 'info'); });
+    
+    // Admin Link Handler:
+    document.getElementById('adminLink').addEventListener('click', (e)=>{
+        e.preventDefault();
+        if (currentRole === 'admin') {
+            renderAdminStats();
+            renderAuth(); // Ensure dashboard is displayed
+            showToast('Menampilkan Dashboard Admin', 'info');
+        }
+    });
 }
 
 // initial load and setup
@@ -576,7 +661,6 @@ document.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('resize', ()=> {
     setTimeout(renderChart, 100); 
 });
-
 </script>
 </body>
   </html>
