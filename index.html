@@ -123,7 +123,6 @@ button.ghost:hover{background:var(--primary-bg)}
 .card-grid .info{padding:4px}
 .card-grid strong{font-size:16px; color:#1f2937;} 
 .card-grid .meta{color:var(--muted);font-size:14px;line-height:1.4} 
-.data-small{font-size:14px;color:var(--muted)} 
 .delete-btn {
     background: var(--error);
     color: white;
@@ -206,6 +205,11 @@ button.ghost:hover{background:var(--primary-bg)}
 .user-item span {
     color: var(--muted);
     font-size: 13px;
+}
+/* Search Admin */
+#adminSearch {
+    width: 100%;
+    margin-bottom: 10px;
 }
 
 
@@ -324,6 +328,7 @@ button.ghost:hover{background:var(--primary-bg)}
         </div>
         
         <h5 style="font-size: 16px; font-weight: 700; margin-top: 15px; margin-bottom: 10px;">Daftar Username User Biasa:</h5>
+        <input id="adminSearch" placeholder="Cari Username..." onkeyup="renderAdminStats()" />
         <div id="userListAdmin">
             </div>
       </div>
@@ -415,6 +420,13 @@ button.ghost:hover{background:var(--primary-bg)}
     <h5 style="margin-top: 15px; font-size: 16px; font-weight: 600;">Tambah Anak Baru</h5>
     <input id="newChildName" placeholder="Nama Anak">
     <div class="field"><label for="newChildDOB">Tanggal Lahir Anak</label><input id="newChildDOB" type="date"></div>
+    <div class="field">
+        <label for="newChildGender">Jenis Kelamin</label>
+        <select id="newChildGender">
+            <option value="male">Laki-laki</option>
+            <option value="female">Perempuan</option>
+        </select>
+    </div>
     <button id="btnAddChild">➕ Tambah Anak</button>
 </div>
 
@@ -422,6 +434,7 @@ button.ghost:hover{background:var(--primary-bg)}
     <h4>Detail Riwayat <span id="detailChildName" style="color:var(--primary); font-size: 16px;"></span></h4>
     <div class="detail-field"><strong>Tanggal Input</strong><span id="detailTanggal"></span></div>
     <div class="detail-field"><strong>Usia</strong><span id="detailUsia"></span></div>
+    <div class="detail-field"><strong>Jenis Kelamin</strong><span id="detailGender"></span></div>
     <div class="detail-field"><strong>Tinggi Badan</strong><span id="detailTinggi"></span></div>
     <div class="detail-field"><strong>Berat Badan</strong><span id="detailBerat"></span></div>
     <div class="detail-field"><strong>Status Gizi</strong><span id="detailStatus"></span></div>
@@ -435,7 +448,7 @@ button.ghost:hover{background:var(--primary-bg)}
 
 <script>
 // --- GLOBAL CONSTANTS & HELPERS ---
-const USERS_KEY = 'faresta_users_v3';
+const USERS_KEY = 'faresta_users_v4'; // Update version key for new schema (gender)
 const VISIT_COUNT_KEY = 'faresta_visit_count_v1';
 const SESSION_USER_KEY = 'faresta_session_user';
 const SESSION_ROLE_KEY = 'faresta_session_role';
@@ -448,27 +461,42 @@ let currentUser = null;
 let currentRole = null; 
 let currentChildId = null; 
 
-// --- WHO GROWTH CHART DATA SIMULATED (Simplified) ---
-// Digunakan untuk status gizi cepat (WFL)
-const WHO_WFL_SIMULATION = {
-    '60': 5.8, '70': 8.0, '80': 10.2, '90': 12.7, '100': 15.3, '110': 17.8
-};
-
-// --- SIMULASI KURVA PERTUMBUHAN WHO (BERAT/USIA DAN TINGGI/USIA) ---
+// --- WHO GROWTH CHART DATA SIMULATED (Separated by Gender) ---
 const WHO_SIMULATED_DATA = {
+    // Berat-per-Tinggi (WFL) for quick status check (Simplified)
+    wfl_simulation: {
+        male: { '60': 5.6, '70': 7.7, '80': 9.9, '90': 12.3, '100': 15.0, '110': 17.5 },
+        female: { '60': 5.4, '70': 7.4, '80': 9.5, '90': 11.9, '100': 14.5, '110': 17.0 }
+    },
     // Berat Badan (kg) per Usia (Bulan) - Contoh 0 hingga 24 bulan
     weight: {
-        labels: [0, 3, 6, 9, 12, 18, 24],
-        median: [3.3, 6.0, 7.8, 9.2, 10.2, 11.5, 12.5],
-        sd_plus2: [4.5, 7.8, 9.8, 11.5, 12.7, 14.2, 15.5],
-        sd_minus2: [2.1, 4.2, 5.8, 6.9, 7.7, 8.8, 9.5]
+        male: {
+            labels: [0, 3, 6, 9, 12, 18, 24],
+            median: [3.3, 6.4, 7.8, 9.2, 10.2, 11.5, 12.5],
+            sd_plus2: [4.5, 8.5, 9.8, 11.5, 12.7, 14.2, 15.5],
+            sd_minus2: [2.1, 4.3, 5.8, 6.9, 7.7, 8.8, 9.5]
+        },
+        female: {
+            labels: [0, 3, 6, 9, 12, 18, 24],
+            median: [3.2, 5.8, 7.2, 8.6, 9.5, 10.8, 11.8],
+            sd_plus2: [4.4, 7.7, 9.2, 10.8, 11.9, 13.5, 14.7],
+            sd_minus2: [2.0, 4.0, 5.4, 6.5, 7.2, 8.3, 9.0]
+        }
     },
     // Tinggi Badan (cm) per Usia (Bulan) - Contoh 0 hingga 24 bulan
     height: {
-        labels: [0, 3, 6, 9, 12, 18, 24],
-        median: [50.0, 61.1, 67.8, 72.8, 77.0, 83.3, 89.0],
-        sd_plus2: [53.7, 65.0, 72.0, 77.0, 81.5, 88.5, 94.0],
-        sd_minus2: [46.3, 57.2, 63.6, 68.6, 72.5, 78.1, 84.0]
+        male: {
+            labels: [0, 3, 6, 9, 12, 18, 24],
+            median: [50.0, 61.1, 67.8, 72.8, 77.0, 83.3, 89.0],
+            sd_plus2: [53.7, 65.0, 72.0, 77.0, 81.5, 88.5, 94.0],
+            sd_minus2: [46.3, 57.2, 63.6, 68.6, 72.5, 78.1, 84.0]
+        },
+        female: {
+            labels: [0, 3, 6, 9, 12, 18, 24],
+            median: [49.0, 59.8, 66.2, 71.0, 75.0, 81.7, 87.5],
+            sd_plus2: [52.7, 63.7, 70.2, 75.0, 79.5, 86.5, 92.5],
+            sd_minus2: [45.3, 55.9, 62.2, 67.0, 70.5, 76.9, 82.5]
+        }
     }
 };
 
@@ -551,9 +579,9 @@ function renderChildSelector() {
 
         childKeys.forEach(id => {
             const option = document.createElement('option');
-            const age = calculateAge(children[id].dob);
+            const ageDetail = calculateAge(children[id].dob);
             option.value = id;
-            option.innerText = `${children[id].name} (${age} bulan)`;
+            option.innerText = `${children[id].name} (${formatAge(ageDetail)})`;
             if (id === currentChildId) {
                 option.selected = true;
             }
@@ -586,9 +614,10 @@ document.getElementById('btnManageChildren').addEventListener('click', () => {
 document.getElementById('btnAddChild').addEventListener('click', () => {
     const name = document.getElementById('newChildName').value.trim();
     const dob = document.getElementById('newChildDOB').value;
+    const gender = document.getElementById('newChildGender').value;
 
     if (!name || !dob) {
-        showToast('Nama dan Tanggal Lahir harus diisi.', 'error');
+        showToast('Nama, Tanggal Lahir, dan Jenis Kelamin harus diisi.', 'error');
         return;
     }
 
@@ -600,11 +629,12 @@ document.getElementById('btnAddChild').addEventListener('click', () => {
     users[currentUser].children[newChildId] = {
         name: name,
         dob: dob,
-        data: [], // Data pertumbuhan
-        immunization: {} // Data imunisasi baru
+        gender: gender, // Simpan Jenis Kelamin
+        data: [], 
+        immunization: {} 
     };
     saveUsers(users);
-    showToast(`${name} berhasil ditambahkan!`, 'success');
+    showToast(`${name} (${gender==='male'?'Laki-laki':'Perempuan'}) berhasil ditambahkan!`, 'success');
 
     // Set new child as active
     currentChildId = newChildId;
@@ -613,6 +643,7 @@ document.getElementById('btnAddChild').addEventListener('click', () => {
     // Clear form and re-render
     document.getElementById('newChildName').value = '';
     document.getElementById('newChildDOB').value = '';
+    document.getElementById('newChildGender').value = 'male';
     closeModal(manageChildModal);
     renderAllData();
     renderChildManagementList();
@@ -626,11 +657,17 @@ function renderChildManagementList() {
 
     Object.keys(children).forEach(id => {
         const child = children[id];
+        const ageDetail = calculateAge(child.dob);
+        const genderText = child.gender === 'male' ? 'Laki-laki' : 'Perempuan';
+        
         const div = document.createElement('div');
-        div.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding: 8px 0; border-bottom: 1px solid #eee;';
+        div.style.cssText = 'display:flex; flex-direction: column; gap: 4px; padding: 8px 0; border-bottom: 1px solid #eee;';
         div.innerHTML = `
-            <span><strong>${child.name}</strong> (${child.dob})</span>
-            <button onclick="deleteChild('${id}')" style="background: var(--error); padding: 5px 10px; font-size: 13px;">Hapus</button>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span><strong>${child.name}</strong> (${formatAge(ageDetail)})</span>
+                <button onclick="deleteChild('${id}')" style="background: var(--error); padding: 5px 10px; font-size: 13px;">Hapus</button>
+            </div>
+            <div class="data-small" style="color:var(--muted);">${genderText} | Tgl Lahir: ${child.dob}</div>
         `;
         list.appendChild(div);
     });
@@ -658,36 +695,48 @@ function deleteChild(id) {
 }
 
 
-// --- WHO ANALYSIS (SIMPLIFIED) ---
+// --- WHO ANALYSIS (SIMPLIFIED BUT GENDER-SPECIFIC) ---
 
 function getGrowthStatus(height, weight, gender = 'male') { 
     if (!height || !weight || height < 60 || height > 110) {
         return { status: 'Data Tidak Lengkap', class: '' };
     }
 
-    const nearestHeight = Object.keys(WHO_WFL_SIMULATION)
+    const wflData = WHO_SIMULATED_DATA.wfl_simulation[gender] || WHO_SIMULATED_DATA.wfl_simulation.male;
+
+    const nearestHeight = Object.keys(wflData)
         .map(Number)
         .reduce((prev, curr) => (Math.abs(curr - height) < Math.abs(prev - height) ? curr : prev));
         
-    const medianWeight = WHO_WFL_SIMULATION[nearestHeight];
+    const medianWeight = wflData[nearestHeight];
 
     let status = '';
     let statusClass = '';
 
+    // Perhitungan Z-score sederhana (hanya berdasarkan deviasi dari median)
     const difference = weight - medianWeight;
-
+    // Menggunakan skala sederhana: 
+    // < -2 SD: Severe
+    // -2 SD to -1 SD: Underweight/Risk
+    // -1 SD to 1.5 SD: Normal
+    // 1.5 SD to 2.5 SD: Overweight/Risk
+    // > 2.5 SD: Severe/Obesity
+    
+    // Angka deviasi ini disederhanakan dan harus dikalibrasi ulang jika menggunakan data WHO real.
+    // Untuk simulasi, anggap deviasi 1 unit = 1 SD
+    
     if (difference < -2) {
-        status = 'Gizi Kurang';
+        status = 'Gizi Buruk/Sangat Kurang';
         statusClass = 'severe';
     } else if (difference < -1) {
-        status = 'Risiko Gizi Kurang';
+        status = 'Gizi Kurang';
         statusClass = 'underweight';
-    } else if (difference > 1.5) {
-        status = 'Risiko Gizi Lebih';
-        statusClass = 'overweight';
     } else if (difference > 2.5) {
         status = 'Obesitas';
         statusClass = 'severe';
+    } else if (difference > 1.5) {
+        status = 'Gizi Lebih';
+        statusClass = 'overweight';
     } else {
         status = 'Gizi Baik (Normal)';
         statusClass = 'normal';
@@ -786,15 +835,37 @@ function calculateAge(birthDate) {
     const today = new Date();
     const dob = new Date(birthDate);
 
-    let months = (today.getFullYear() - dob.getFullYear()) * 12;
-    months -= dob.getMonth();
-    months += today.getMonth();
+    let years = today.getFullYear() - dob.getFullYear();
+    let months = today.getMonth() - dob.getMonth();
+    let days = today.getDate() - dob.getDate();
 
-    if (today.getDate() < dob.getDate()) {
-        months -= 1;
+    if (days < 0) {
+        months--;
+        days += new Date(today.getFullYear(), today.getMonth(), 0).getDate(); // Days in previous month
+    }
+    if (months < 0) {
+        years--;
+        months += 12;
     }
 
-    return months > 0 ? months : 0;
+    // Hitung total bulan (ini yang digunakan untuk plotting WHO)
+    const totalMonths = years * 12 + months + (days > 15 ? 0.5 : 0); // Pembulatan sederhana ke tengah bulan
+    
+    return { 
+        years: years, 
+        months: months, 
+        days: days, 
+        totalMonths: Math.round(totalMonths) // Total bulan untuk chart (integer)
+    };
+}
+
+function formatAge(ageDetail) {
+    if (!ageDetail || ageDetail.years === undefined) return 'N/A';
+    if (ageDetail.years > 0) {
+        return `${ageDetail.years} thn ${ageDetail.months} bln`;
+    } else {
+        return `${ageDetail.months} bln ${ageDetail.days} hari`;
+    }
 }
 
 // --- DATA ACTIONS ---
@@ -844,12 +915,13 @@ function renderImunisasiTable() {
     }
 
     const childData = getCurrentChildData();
-    const childAge = calculateAge(childData.dob);
+    const ageDetail = calculateAge(childData.dob);
+    const childAgeMonths = ageDetail.totalMonths;
     
     // Pastikan skema data imunisasi ada
     childData.immunization = childData.immunization || {}; 
 
-    infoEl.innerText = `Jadwal Imunisasi untuk ${childData.name} (Usia ${childAge} bulan):`;
+    infoEl.innerText = `Jadwal Imunisasi untuk ${childData.name} (Usia ${formatAge(ageDetail)}):`;
 
     let html = `
         <table>
@@ -879,7 +951,7 @@ function renderImunisasiTable() {
             statusText = 'Selesai';
             givenDate = statusData.date || '—';
             actionBtn = `<button style="background: var(--warning); padding: 5px 10px; font-size: 13px;" onclick="markImunizationPending('${key}')">Batal Selesai</button>`;
-        } else if (childAge > imun.age + 2) { // 2 bulan toleransi
+        } else if (childAgeMonths > imun.age + 2) { // 2 bulan toleransi
             statusClass = 'missed';
             statusText = 'Terlambat/Terlewat';
         }
@@ -904,8 +976,9 @@ function markImunizationDone(key, age) {
     const childData = users[currentUser].children[currentChildId];
     
     const today = new Date().toISOString().split('T')[0];
+    const ageDetail = calculateAge(childData.dob);
 
-    childData.immunization[key] = { done: true, date: today, age_given: calculateAge(childData.dob) };
+    childData.immunization[key] = { done: true, date: today, age_given: formatAge(ageDetail) };
     saveUsers(users);
     showToast(`Imunisasi ${key.replace(/_/g, ' ')} berhasil ditandai selesai!`, 'success');
     renderImunisasiTable();
@@ -954,7 +1027,7 @@ function getAdminStats() {
     
     const userList = userKeys.filter(u => u !== 'admin').map(username => {
         const numChildren = Object.keys(users[username].children || {}).length;
-        return { username, numChildren };
+        return { username, numChildren, role: 'user' };
     });
 
     return { userCount: userCount, visitCount: visitCount, userList: userList };
@@ -962,19 +1035,26 @@ function getAdminStats() {
 
 function renderAdminStats() {
     const stats = getAdminStats();
+    const searchInput = document.getElementById('adminSearch').value.toLowerCase();
+    
     document.getElementById('statUsers').innerText = stats.userCount;
     document.getElementById('statVisits').innerText = stats.visitCount;
+
+    // Filter User List
+    const filteredUsers = stats.userList.filter(user => 
+        user.username.toLowerCase().includes(searchInput)
+    );
 
     // Render User List
     const listContainer = document.getElementById('userListAdmin');
     listContainer.innerHTML = '';
     
-    if (stats.userList.length === 0) {
-        listContainer.innerHTML = '<div class="data-small" style="padding: 10px 15px;">Belum ada user biasa terdaftar.</div>';
+    if (filteredUsers.length === 0) {
+        listContainer.innerHTML = `<div class="data-small" style="padding: 10px 15px;">Username '${searchInput}' tidak ditemukan.</div>`;
         return;
     }
 
-    stats.userList.forEach(user => {
+    filteredUsers.forEach(user => {
         const item = document.createElement('div');
         item.className = 'user-item';
         item.innerHTML = `
@@ -1023,7 +1103,10 @@ function renderAllData() {
     imunisasiLink.style.display = (currentUser && currentRole === 'user') ? 'flex' : 'none';
     
     // Atur tampilan awal ke home
-    navigateTo(currentRole === 'admin' ? 'dashboard' : 'home');
+    const activeSection = document.getElementById('mainContent').querySelector('.content-section[style*="block"]');
+    if (!activeSection) {
+        navigateTo(currentRole === 'admin' ? 'dashboard' : 'home');
+    }
 }
 
 function renderAuth(){ 
@@ -1048,8 +1131,9 @@ function renderWho(){
     let childName = '';
     const childData = getCurrentChildData();
     if (childData) {
-        const age = calculateAge(childData.dob);
-        childName = `${childData.name} (${age} bulan) - Tgl Lahir: ${childData.dob}`;
+        const ageDetail = calculateAge(childData.dob);
+        const genderText = childData.gender === 'male' ? 'L' : 'P';
+        childName = `${childData.name} (${genderText} | ${formatAge(ageDetail)}) - Tgl Lahir: ${childData.dob}`;
     }
 
     document.getElementById('whoInfo').innerText = currentUser 
@@ -1079,10 +1163,12 @@ document.getElementById('btnSave').addEventListener('click', async ()=>{
   if(!tinggi || !berat){ showToast('Lengkapi data penting (Tinggi & Berat)', 'error'); return; }
   
   // 5. Pembentukan Objek Data Baru
+  const ageDetail = calculateAge(childData.dob);
   const entry = { 
     id: Date.now(), 
     tanggal_input: new Date().toISOString().split('T')[0],
-    usia_bulan: calculateAge(childData.dob), 
+    usia_bulan: ageDetail.totalMonths, // Gunakan totalMonths yang sudah dibulatkan untuk chart
+    usia_format: formatAge(ageDetail), // Gunakan format string untuk display
     tinggi: Number(tinggi), 
     berat: Number(berat), 
     catatan: catatan
@@ -1115,12 +1201,14 @@ function showDetail(id) {
     if (!entry) return;
 
     // Hitung status gizi
-    const statusResult = getGrowthStatus(entry.tinggi, entry.berat);
+    const statusResult = getGrowthStatus(entry.tinggi, entry.berat, childData.gender);
+    const genderText = childData.gender === 'male' ? 'Laki-laki' : 'Perempuan';
 
     // Isi Modal
     document.getElementById('detailChildName').innerText = `(${childData.name})`;
     document.getElementById('detailTanggal').innerText = entry.tanggal_input;
-    document.getElementById('detailUsia').innerText = `${entry.usia_bulan} bulan`;
+    document.getElementById('detailUsia').innerText = entry.usia_format;
+    document.getElementById('detailGender').innerText = genderText;
     document.getElementById('detailTinggi').innerText = `${entry.tinggi} cm`;
     document.getElementById('detailBerat').innerText = `${entry.berat} kg`;
     document.getElementById('detailStatus').innerHTML = `<span class="status-badge ${statusResult.class}">${statusResult.status}</span>`;
@@ -1140,7 +1228,8 @@ function renderList(){
   if(!currentChildId){ list.innerHTML = '<div class="data-small">Silakan tambahkan data anak di menu "Atur Anak".</div>'; return; }
 
   const users = getUsers(); 
-  const entries = users[currentUser].children[currentChildId]?.data || []; 
+  const childData = users[currentUser].children[currentChildId];
+  const entries = childData?.data || []; 
   
   if(!entries.length) { list.innerHTML = '<div class="data-small">Belum ada data perkembangan untuk anak ini.</div>'; return; }
   
@@ -1150,7 +1239,7 @@ function renderList(){
     d.setAttribute('onclick', `showDetail(${e.id})`); // Tambahkan listener detail
 
     // Tentukan status gizi untuk riwayat ini
-    const statusResult = getGrowthStatus(e.tinggi, e.berat);
+    const statusResult = getGrowthStatus(e.tinggi, e.berat, childData.gender);
     const statusBadge = `<span class="status-badge ${statusResult.class}" style="margin-top: 0; margin-bottom: 0;">${statusResult.status}</span>`;
 
     d.innerHTML = `
@@ -1158,9 +1247,9 @@ function renderList(){
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2Z"/><path d="M12 8V16"/><path d="M8 12H16"/></svg>
         </div>
         <div class="info">
-            <strong>${getCurrentChildData().name}</strong>
+            <strong>${childData.name}</strong>
             ${statusBadge}
-            <div class="meta">${e.usia_bulan} bulan</div>
+            <div class="meta">${e.usia_format}</div>
             <div class="meta">${e.tinggi} cm • ${e.berat} kg</div>
             <div class="meta data-small">Tgl Input: ${e.tanggal_input}</div>
             <button class="delete-btn" onclick="event.stopPropagation(); deleteEntry(${e.id});">🗑️ Hapus</button>
@@ -1199,9 +1288,10 @@ function renderChart(){
 
     const childData = getCurrentChildData();
     const data = (childData.data) ? childData.data.slice() : [];
-    
+    const gender = childData.gender || 'male'; // Default ke male jika tidak ada
+
     // Urutkan data berdasarkan usia bulan untuk plotting yang benar pada sumbu X
-    data.sort((a,b)=>a.usia_bulan - b.usia_bulan); 
+    data.sort((a,b)=>a.usia_bulan - b.usia.bulan); 
     
     // Pastikan data yang akan diplot memiliki usia (bulan)
     const validData = data.filter(d => d.usia_bulan !== null && d.usia_bulan >= 0);
@@ -1224,29 +1314,32 @@ function renderChart(){
     
     // Tampilkan status gizi terbaru
     const latestEntry = validData[validData.length - 1];
-    const statusResult = getGrowthStatus(latestEntry.tinggi, latestEntry.berat);
-    statusEl.innerText = `Status Terbaru: ${statusResult.status}`;
+    const statusResult = getGrowthStatus(latestEntry.tinggi, latestEntry.berat, gender);
+    statusEl.innerText = `Status Terbaru: ${statusResult.status} (Berdasarkan WHO ${gender==='male'?'Laki-laki':'Perempuan'})`;
     statusEl.className = `status-badge ${statusResult.class}`;
 
     // --- SETUP DATASET GRAFIK ---
-
+    const whoData = WHO_SIMULATED_DATA;
+    const genderData = whoData.weight[gender] || whoData.weight.male; // Ambil data WHO sesuai gender
+    
     // Data Anak
     const userWeightData = validData.map(d => ({ x: d.usia_bulan, y: d.berat }));
     const userHeightData = validData.map(d => ({ x: d.usia_bulan, y: d.tinggi }));
 
     // Data Standar WHO (Simulasi)
-    const whoLabels = WHO_SIMULATED_DATA.weight.labels;
-    const whoWeightMedian = WHO_SIMULATED_DATA.weight.median.map((y, i) => ({ x: whoLabels[i], y: y }));
-    const whoWeightSDp2 = WHO_SIMULATED_DATA.weight.sd_plus2.map((y, i) => ({ x: whoLabels[i], y: y }));
-    const whoWeightSDm2 = WHO_SIMULATED_DATA.weight.sd_minus2.map((y, i) => ({ x: whoLabels[i], y: y }));
+    const whoLabels = genderData.labels;
+    const whoWeightMedian = whoData.weight[gender].median.map((y, i) => ({ x: whoLabels[i], y: y }));
+    const whoWeightSDp2 = whoData.weight[gender].sd_plus2.map((y, i) => ({ x: whoLabels[i], y: y }));
+    const whoWeightSDm2 = whoData.weight[gender].sd_minus2.map((y, i) => ({ x: whoLabels[i], y: y }));
 
-    const whoHeightMedian = WHO_SIMULATED_DATA.height.median.map((y, i) => ({ x: whoLabels[i], y: y }));
-    const whoHeightSDp2 = WHO_SIMULATED_DATA.height.sd_plus2.map((y, i) => ({ x: whoLabels[i], y: y }));
-    const whoHeightSDm2 = WHO_SIMULATED_DATA.height.sd_minus2.map((y, i) => ({ x: whoLabels[i], y: y }));
+    const whoHeightMedian = whoData.height[gender].median.map((y, i) => ({ x: whoLabels[i], y: y }));
+    const whoHeightSDp2 = whoData.height[gender].sd_plus2.map((y, i) => ({ x: whoLabels[i], y: y }));
+    const whoHeightSDm2 = whoData.height[gender].sd_minus2.map((y, i) => ({ x: whoLabels[i], y: y }));
 
     const allDataPoints = [...userWeightData, ...userHeightData, ...whoWeightSDp2, ...whoHeightSDp2];
     const maxUsia = Math.max(...allDataPoints.map(d => d.x), 24);
-    const maxVal = Math.max(...allDataPoints.map(d => d.y));
+    const maxValWeight = Math.max(...[...userWeightData, ...whoWeightSDp2].map(d => d.y));
+    const maxValHeight = Math.max(...[...userHeightData, ...whoHeightSDp2].map(d => d.y));
 
     chart = new Chart(ctx, {
       type: 'line',
@@ -1295,7 +1388,7 @@ function renderChart(){
         plugins: {
             tooltip: { mode: 'index', intersect: false, bodyFont: { size: 14 }, titleFont: { size: 15 } },
             legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 12 } } },
-            title: { display: true, text: `Grafik Pertumbuhan ${childData.name} vs. Standar WHO`, font: { size: 16 } }
+            title: { display: true, text: `Grafik Pertumbuhan ${childData.name} (${gender==='male'?'Laki-laki':'Perempuan'}) vs. Standar WHO`, font: { size: 16 } }
         },
         scales: {
           x: {
@@ -1309,7 +1402,7 @@ function renderChart(){
               type: 'linear',
               position: 'left',
               beginAtZero: true,
-              max: Math.ceil(maxVal * 1.1 / 5) * 5, // Auto Max
+              max: Math.ceil(maxValWeight * 1.1 / 5) * 5, // Auto Max
               title: { display: true, text: 'Berat Badan (kg)', font: { size: 14, weight: 'bold' }, color: '#ff8c42' }, 
               ticks: { font: { size: 12 }, color: '#ff8c42' }
           },
@@ -1318,7 +1411,7 @@ function renderChart(){
               position: 'right',
               beginAtZero: false,
               grid: { drawOnChartArea: false }, // Jangan tampilkan garis grid untuk sumbu kanan
-              max: Math.ceil(maxVal * 1.1 / 10) * 10, // Auto Max
+              max: Math.ceil(maxValHeight * 1.1 / 10) * 10, // Auto Max
               title: { display: true, text: 'Tinggi Badan (cm)', font: { size: 14, weight: 'bold' }, color: '#4f46e5' }, 
               ticks: { font: { size: 12 }, color: '#4f46e5' }
           }
@@ -1348,7 +1441,7 @@ document.getElementById('btnExportCSV').addEventListener('click', () => {
 
     // Filter data untuk CSV
     const dataToExport = data.map(entry => {
-        const { id, ...rest } = entry;
+        const { id, usia_bulan, ...rest } = entry;
         return rest;
     });
 
@@ -1497,4 +1590,4 @@ window.addEventListener('resize', ()=> {
 });
 </script>
 </body>
-  </html>
+          </html>
