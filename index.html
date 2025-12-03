@@ -372,29 +372,24 @@ const USERS_KEY = 'faresta_users_v3';
 const VISIT_COUNT_KEY = 'faresta_visit_count_v1';
 const SESSION_USER_KEY = 'faresta_session_user';
 const SESSION_ROLE_KEY = 'faresta_session_role';
-const SESSION_CHILD_KEY = 'faresta_session_child_id'; // KUNCI BARU: ID anak yang aktif
+const SESSION_CHILD_KEY = 'faresta_session_child_id'; 
 
 const getUsers = ()=> JSON.parse(localStorage.getItem(USERS_KEY) || '{}');
 const saveUsers = u=> localStorage.setItem(USERS_KEY, JSON.stringify(u));
 
 let currentUser = null; 
 let currentRole = null; 
-let currentChildId = null; // ID Anak yang sedang aktif
+let currentChildId = null; 
 
 // --- WHO GROWTH CHART DATA SIMULATED (Simplified) ---
-// Untuk demonstrasi, kita gunakan simulasi data WHO Z-Score Weight-for-Length/Height (WFL) untuk anak laki-laki usia 60-110 cm
-// Z-Score: -3 (Severe Thinness), -2 (Thinness), +1 (Possible Risk of Overweight), +2 (Overweight), +3 (Obese)
-// Data ini sangat disederhanakan dan harus diganti dengan data Z-Score WHO yang akurat dan lengkap.
-
 const WHO_WFL_SIMULATION = {
     // Berat median (kg) pada panjang/tinggi tertentu (cm)
-    '60': 5.8, // Example: 60cm median weight is 5.8kg
+    '60': 5.8, 
     '70': 8.0, 
     '80': 10.2,
     '90': 12.7,
     '100': 15.3,
     '110': 17.8
-    // Dalam implementasi nyata, ini harus data Z-Score yang lengkap (-3SD hingga +3SD)
 };
 
 // --- SESSION MANAGEMENT FUNCTIONS ---
@@ -464,8 +459,9 @@ function renderChildSelector() {
 
         childKeys.forEach(id => {
             const option = document.createElement('option');
+            const age = calculateAge(children[id].dob);
             option.value = id;
-            option.innerText = `${children[id].name} (${calculateAge(children[id].dob)} bulan)`;
+            option.innerText = `${children[id].name} (${age} bulan)`;
             if (id === currentChildId) {
                 option.selected = true;
             }
@@ -488,7 +484,7 @@ const manageChildModal = document.getElementById('manageChildModal');
 document.getElementById('btnManageChildren').addEventListener('click', () => {
     if (!currentUser || currentRole === 'admin') return;
     renderChildManagementList();
-    manageChildModal.classList.add('open');
+    openModal(manageChildModal);
 });
 
 document.getElementById('btnAddChild').addEventListener('click', () => {
@@ -503,11 +499,12 @@ document.getElementById('btnAddChild').addEventListener('click', () => {
     const users = getUsers();
     const newChildId = Date.now().toString();
 
+    // Pastikan children dan data diinisialisasi dengan benar
     users[currentUser].children = users[currentUser].children || {};
     users[currentUser].children[newChildId] = {
         name: name,
         dob: dob,
-        data: []
+        data: [] // Pastikan array data ada
     };
     saveUsers(users);
     showToast(`${name} berhasil ditambahkan!`, 'success');
@@ -519,9 +516,9 @@ document.getElementById('btnAddChild').addEventListener('click', () => {
     // Clear form and re-render
     document.getElementById('newChildName').value = '';
     document.getElementById('newChildDOB').value = '';
+    closeModal(manageChildModal);
     renderAllData();
     renderChildManagementList();
-    manageChildModal.classList.remove('open');
 });
 
 function renderChildManagementList() {
@@ -555,7 +552,8 @@ function deleteChild(id) {
 
     // Update active child if the deleted one was active
     if (currentChildId === id) {
-        currentChildId = Object.keys(users[currentUser].children || {})[0] || null;
+        const remainingChildren = Object.keys(users[currentUser].children || {});
+        currentChildId = remainingChildren.length > 0 ? remainingChildren[0] : null;
         saveSession(currentUser, currentRole, currentChildId);
     }
     renderAllData();
@@ -566,13 +564,10 @@ function deleteChild(id) {
 // --- WHO ANALYSIS (SIMPLIFIED) ---
 
 function getGrowthStatus(height, weight, gender = 'male') { 
-    // Data WHO WFL yang disimulasikan di sini hanya untuk demonstrasi.
-    // Implementasi nyata memerlukan tabel data Z-Score lengkap.
     if (!height || !weight || height < 60 || height > 110) {
         return { status: 'Data Tidak Lengkap', class: '' };
     }
 
-    // Mendapatkan median berat terdekat dari data simulasi
     const nearestHeight = Object.keys(WHO_WFL_SIMULATION)
         .map(Number)
         .reduce((prev, curr) => (Math.abs(curr - height) < Math.abs(prev - height) ? curr : prev));
@@ -662,6 +657,7 @@ function openModal(modalEl) {
 function closeModal(modalEl) {
     modalEl.classList.remove('open');
     modalEl.setAttribute('aria-hidden', 'true');
+    // Hanya sembunyikan overlay jika tidak ada modal lain yang terbuka
     if (!authModal.classList.contains('open') && !manageChildModal.classList.contains('open')) {
         modalOverlay.style.display = 'none';
     }
@@ -826,47 +822,79 @@ function renderWho(){
 
 
 // Input save
-async function fileToBase64(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); }
+async function fileToBase64(file){ 
+    return new Promise((res,rej)=>{ 
+        const r=new FileReader(); 
+        r.onload=()=>res(r.result); 
+        r.onerror=rej; 
+        r.readAsDataURL(file); 
+    }); 
+}
 
+// FUNGSI btnSave YANG SUDAH DIPERBAIKI (PERHATIAN: Menggantikan fungsi sebelumnya)
 document.getElementById('btnSave').addEventListener('click', async ()=>{
+  // 1. Validasi Awal
   if(!currentUser || currentRole === 'admin'){ showToast('Silakan login sebagai user biasa untuk menyimpan data', 'error'); return; }
   if(!currentChildId){ showToast('Silakan pilih atau tambahkan data anak terlebih dahulu.', 'error'); return; }
 
+  // 2. Ambil Data Anak Aktif (untuk mendapatkan DOB & menghitung usia)
+  const users = getUsers(); 
+  const childData = users[currentUser]?.children?.[currentChildId];
+
+  if (!childData) { showToast('Data anak aktif tidak ditemukan.', 'error'); return; }
+
+  // 3. Ambil Input Form
   const tinggi = document.getElementById('tinggi').value; 
   const berat = document.getElementById('berat').value; 
   const catatan = document.getElementById('catatan').value.trim(); 
   const fotoFile = document.getElementById('foto').files[0];
   
+  // 4. Validasi Input Data
   if(!tinggi || !berat){ showToast('Lengkapi data penting (Tinggi & Berat)', 'error'); return; }
   
-  const users = getUsers(); 
-  const childData = getCurrentChildData();
+  // 5. Pembentukan Objek Data Baru
   const entry = { 
     id: Date.now(), 
     tanggal_input: new Date().toISOString().split('T')[0],
-    usia_bulan: calculateAge(childData.dob),
+    // MENGHITUNG USIA BERDASARKAN DOB ANAK YANG AKTIF
+    usia_bulan: calculateAge(childData.dob), 
     tinggi: Number(tinggi), 
     berat: Number(berat), 
     catatan: catatan, 
-    foto: null 
+    foto: null // Default null
   };
   
+  // 6. Penanganan Foto (Error Handling)
   if(fotoFile) {
       if(fotoFile.size > 2 * 1024 * 1024) { 
-          showToast('Ukuran foto terlalu besar (Max 2MB)', 'error');
-          return;
+          showToast('Ukuran foto terlalu besar (Max 2MB).', 'error');
+          return; // Hentikan proses
       }
-      entry.foto = await fileToBase64(fotoFile);
+      try {
+        // Konversi file ke Base64
+        entry.foto = await fileToBase64(fotoFile); 
+      } catch (e) {
+        console.error("Gagal mengkonversi file:", e);
+        showToast('Gagal memproses foto. Silakan coba lagi tanpa foto.', 'error');
+        return; // Hentikan proses jika konversi gagal
+      }
   }
   
-  users[currentUser].children[currentChildId].data = users[currentUser].children[currentChildId].data || [];
+  // 7. Proses Penyimpanan ke Local Storage
+  // Inisialisasi array data jika belum ada (PENTING untuk mencegah bug data)
+  if (!users[currentUser].children[currentChildId].data) {
+      users[currentUser].children[currentChildId].data = [];
+  }
+
+  // Tambahkan data baru
   users[currentUser].children[currentChildId].data.push(entry); 
   saveUsers(users); 
   showToast('Data perkembangan tersimpan', 'success'); 
+  
+  // 8. Render Ulang UI dan Bersihkan Form
   renderList(); 
   renderChart(); 
   
-  // clear form
   document.getElementById('tinggi').value=''; 
   document.getElementById('berat').value=''; 
   document.getElementById('catatan').value=''; 
@@ -924,7 +952,15 @@ function renderChart(){
     if(!currentUser || currentRole === 'admin' || !currentChildId){
       statusEl.innerText = 'Data Tidak Tersedia';
       statusEl.className = 'status-badge'; 
-      chart = new Chart(ctx, { /* ... Chart default settings ... */ });
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: { labels: ['0'], datasets: [ { label: 'Tinggi (cm)', data: [0], borderColor: '#d1d5db', tension: 0.4 } ] },
+        options: { 
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false }, title: { display: true, text: 'Login atau Pilih Anak untuk melihat grafik' } },
+            scales: { x: { display: true, title: { display: true, text: 'Usia (bulan)' } }, y: { beginAtZero: true, title: { display: true, text: 'Nilai' } } }
+        }
+      });
       return;
     }
 
@@ -936,7 +972,15 @@ function renderChart(){
     if(!data.length){
       statusEl.innerText = 'Belum ada data untuk anak ini';
       statusEl.className = 'status-badge';
-      chart = new Chart(ctx, { /* ... Chart no data settings ... */ });
+      chart = new Chart(ctx, { 
+        type: 'line',
+        data: { labels: ['0'], datasets: [ { label: 'Tinggi (cm)', data: [0], borderColor: '#d1d5db', tension: 0.4 } ] },
+        options: { 
+            responsive: true, maintainAspectRatio: false, 
+            plugins: { title: { display: true, text: 'Belum ada data pertumbuhan' } },
+            scales: { x: { display: true, title: { display: true, text: 'Usia (bulan)' } }, y: { beginAtZero: true, title: { display: true, text: 'Nilai' } } }
+        }
+      });
       return;
     }
     
@@ -976,7 +1020,6 @@ function renderChart(){
             pointRadius: 6,
             pointHoverRadius: 8
           }
-          // Idealnya, di sini ditambahkan dataset untuk Kurva WHO Median, -2SD, +2SD
         ]
       },
       options: {
@@ -1058,10 +1101,13 @@ function initListeners() {
     document.getElementById('btnRegister').addEventListener('click', ()=>{
       const u = document.getElementById('regUser').value.trim(); const p = document.getElementById('regPass').value; if(!u||!p){ showToast('Isi username & password', 'error'); return; }
       const users = getUsers(); if(users[u]){ showToast('Username sudah ada', 'error'); return; }
-      users[u] = { password: p, children: {} }; // Skema baru: Gunakan 'children'
+      // Skema baru: Pastikan children diinisialisasi saat register
+      users[u] = { password: p, children: {} }; 
       saveUsers(users); showToast('Akun dibuat — silakan login', 'success'); openAuth('login'); document.getElementById('regUser').value=''; document.getElementById('regPass').value='';
       renderAdminStats(); 
     });
+    
+    // FUNGSI btnLogin YANG SUDAH DIPERBAIKI (PERHATIAN: Menggantikan fungsi sebelumnya)
     document.getElementById('btnLogin').addEventListener('click', ()=>{
       const u = document.getElementById('loginUser').value.trim(); const p = document.getElementById('loginPass').value; if(!u||!p){ showToast('Isi username & password', 'error'); return; }
       const users = getUsers(); 
@@ -1074,6 +1120,8 @@ function initListeners() {
       } else if(users[u] && users[u].password === p) {
         currentUser = u; 
         currentRole = 'user';
+        // Pastikan children ada, jika tidak ada, buat objek kosong
+        users[u].children = users[u].children || {}; 
         // Ambil ID anak pertama jika ada, untuk default sesi
         newChildId = Object.keys(users[u].children || {})[0] || null;
       } else {
