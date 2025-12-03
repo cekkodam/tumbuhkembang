@@ -1,291 +1,214 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FARESTA - Laporan Tumbuh Kembang Faresta</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
-
-    <style>
-        /* ===== RESET ===== */
-        * { margin: 0; padding: 0; box-sizing: border-box; } 
-
-        body {
-            font-family: "Poppins", Arial, sans-serif;
-            background: #f0f2f5;
-            color: #333;
-            overflow-x: hidden;
-        } 
-
-        /* ===== SIDEBAR ===== */
-        .sidebar {
-            width: 260px;
-            height: 100vh;
-            background: linear-gradient(180deg, #4b7bec, #3867d6);
-            position: fixed;
-            top: 0; left: -260px;
-            padding: 25px;
-            transition: 0.4s ease;
-            color: white;
-            z-index: 1000;
-        } 
-
-        .sidebar.open { left: 0; } 
-
-        .sidebar h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 26px;
-            letter-spacing: 1px;
-        } 
-
-        .sidebar a {
-            display: block;
-            padding: 12px 15px;
-            margin-bottom: 10px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 8px;
-            color: white;
-            text-decoration: none;
-            font-size: 16px;
-            transition: 0.3s;
-        } 
-
-        .sidebar a:hover {
-            background: rgba(255,255,255,0.35);
-            transform: scale(1.05);
-        } 
-
-        /* ===== SIDEBAR TOGGLE BUTTON ===== */
-        .sidebar-toggle {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            background: #3867d6;
-            color: white;
-            padding: 10px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            z-index: 1100;
-            font-size: 18px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-        } 
-
-        /* ===== HEADER ===== */
-        header {
-            background: linear-gradient(135deg, #3867d6, #4b7bec, #45aaf2);
-            padding: 70px 20px;
-            text-align: center;
-            color: white;
-            border-bottom-left-radius: 50px;
-            border-bottom-right-radius: 50px;
-            margin-left: 0;
-            transition: 0.4s;
-        } 
-
-        .container {
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 20px;
-        } 
-
-        h2 { margin: 15px 0; } 
-
-        input, textarea, select, button {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            margin-bottom: 12px;
-            font-size: 15px;
-        } 
-
-        button {
-            background: #3867d6;
-            color: white;
-            cursor: pointer;
-            transition: 0.3s;
-            font-weight: bold;
-        } 
-
-        button:hover { background: #274e91; } 
-
-        /* ===== CARD DATA ===== */
-        .data-card {
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            margin-bottom: 15px;
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        } 
-
-        .data-card img {
-            width: 120px;
-            height: 120px;
-            object-fit: contain;
-            background: white;
-            border: 1px solid #ddd;
-            padding: 5px;
-            border-radius: 10px;
-        } 
-
-        @media (max-width: 768px) {
-            .data-card { flex-direction: column; text-align: center; }
-            .sidebar { width: 230px; left: -230px; }
-            .sidebar.open { left: 0; }
-        }
-    </style>
-</head> 
-
-<body> 
-
-<!-- SIDEBAR TOGGLE -->
-<div class="sidebar-toggle" onclick="toggleSidebar()">☰ Menu</div> 
-
-<!-- SIDEBAR -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FARESTA - Laporan Tumbuh Kembang</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #f5f8ff;
+      color: #2d2d2d;
+      overflow-x: hidden;
+    }
+    .sidebar {
+      width: 250px;
+      height: 100vh;
+      background: linear-gradient(180deg, #6a8cff, #5072e6);
+      position: fixed;
+      left: -260px;
+      top: 0;
+      padding: 25px;
+      color: white;
+      transition: 0.35s;
+      z-index: 1000;
+    }
+    .sidebar.open { left: 0; }
+    .sidebar h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 24px;
+      font-weight: 600;
+    }
+    .sidebar a {
+      display: block;
+      padding: 12px;
+      text-decoration: none;
+      color: white;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.18);
+      transition: 0.3s;
+    }
+    .sidebar a:hover {
+      background: rgba(255,255,255,0.32);
+      transform: scale(1.03);
+    }
+    .sidebar-toggle {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      background: #5072e6;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      z-index: 1100;
+      font-weight: bold;
+    }
+    header {
+      background: linear-gradient(135deg, #5072e6, #6a8cff, #8fb1ff);
+      padding: 70px 20px;
+      color: white;
+      text-align: center;
+      border-bottom-left-radius: 45px;
+      border-bottom-right-radius: 45px;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+    input, textarea, button, select {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      border: 1px solid #d3d3d3;
+      border-radius: 10px;
+      font-size: 15px;
+    }
+    button {
+      background: #5072e6;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover { background: #395ac0; }
+    .data-card {
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      margin-bottom: 15px;
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+    .data-card img {
+      width: 130px;
+      height: 130px;
+      border-radius: 14px;
+      object-fit: cover;
+      border: 1px solid #ddd;
+    }
+    @media (max-width: 768px) {
+      .data-card { flex-direction: column; text-align: center; }
+      .sidebar { width: 230px; left: -240px; }
+      .sidebar.open { left: 0; }
+    }
+  </style>
+</head>
+<body>
+<div class="sidebar-toggle" onclick="toggleSidebar()">☰ Menu</div>
 <div class="sidebar" id="sidebar">
-    <h2>FARESTA</h2>
-    <a href="#home">Home</a>
-    <a href="#input">Input Data</a>
-    <a href="#data">Data Tersimpan</a>
-    <a href="#grafik">Grafik Pertumbuhan</a>
-    <a href="#tentang">Tentang Website</a>
-</div> 
-
-<!-- HEADER -->
+  <h2>FARESTA</h2>
+  <a href="#home">Beranda</a>
+  <a href="#input">Input Data</a>
+  <a href="#data">Data Tersimpan</a>
+  <a href="#grafik">Grafik</a>
+  <a href="#about">Tentang</a>
+</div>
 <header id="home">
-    <h1>Laporan Tumbuh Kembang Faresta</h1>
-    <p>Pantau perkembangan Faresta dengan mudah dan modern.</p>
-</header> 
-
-<div class="container"> 
-
-    <!-- FORM INPUT -->
-    <h2 id="input">Input Data Anak</h2> 
-
-    <form id="dataForm">
-        <input type="text" id="nama" placeholder="Nama Anak" required>
-        <input type="date" id="tanggalLahir" required>
-        <input type="number" id="usia" placeholder="Usia (bulan)" required>
-        <input type="number" id="tinggi" step="0.1" placeholder="Tinggi (cm)" required>
-        <input type="number" id="berat" step="0.1" placeholder="Berat (kg)" required>
-        <textarea id="perkembangan" rows="3" placeholder="Catatan perkembangan..."></textarea>
-        <input type="file" id="foto" accept="image/*">
-        <button type="submit">Simpan Data</button>
-    </form> 
-
-    <!-- GRAFIK -->
-    <h2 id="grafik">Grafik Pertumbuhan</h2>
-    <canvas id="growthChart" style="background:white; border-radius:10px; padding:10px;"></canvas> 
-
-    <!-- DATA TERSIMPAN -->
-    <h2 id="data">Data Tersimpan</h2>
-    <div id="dataList"></div> 
-
-    <!-- TENTANG -->
-    <h2 id="tentang">Tentang Website</h2>
-    <p>
-        FARESTA adalah sistem pelaporan tumbuh kembang anak modern.
-        Anda dapat menyimpan data perkembangan, foto, grafik pertumbuhan,
-        dan memantau perubahan secara visual.  
-    </p> 
-
-</div> 
-
+  <h1>Laporan Tumbuh Kembang Anak</h1>
+  <p>Simpan, pantau, dan lihat perkembangan Faresta dengan grafik interaktif.</p>
+</header>
+<div class="container">
+  <h2 id="input">Input Data Perkembangan</h2>
+  <form id="formData">
+    <input type="text" id="nama" placeholder="Nama Anak" required>
+    <input type="date" id="tanggalLahir" required>
+    <input type="number" id="usia" placeholder="Usia (bulan)" required>
+    <input type="number" id="tinggi" placeholder="Tinggi (cm)" step="0.1" required>
+    <input type="number" id="berat" placeholder="Berat (kg)" step="0.1" required>
+    <textarea id="catatan" placeholder="Catatan perkembangan..."></textarea>
+    <label>Foto Perkembangan</label>
+    <input type="file" id="foto" accept="image/*">
+    <button type="submit">Simpan Data</button>
+  </form>
+  <h2 id="grafik">Grafik Pertumbuhan</h2>
+  <canvas id="chartGrowth" style="background:white; border-radius:12px; padding:10px;"></canvas>
+  <h2 id="data">Data Tersimpan</h2>
+  <div id="listData"></div>
+  <h2 id="about">Tentang</h2>
+  <p>Website ini membantu orang tua memantau perkembangan anak secara visual dan tersimpan rapi. Semua data disimpan di perangkat Anda melalui localStorage.</p>
+</div>
 <script>
-    // SIDEBAR OPEN/CLOSE
-    function toggleSidebar() {
-        document.getElementById("sidebar").classList.toggle("open");
-    } 
-
-    const form = document.getElementById('dataForm');
-    const dataList = document.getElementById('dataList'); 
-
-    let data = JSON.parse(localStorage.getItem('anakData')) || []; 
-
-    form.addEventListener('submit', function(e) {
-        e.preventDefault(); 
-
-        const nama = document.getElementById('nama').value;
-        const tanggalLahir = document.getElementById('tanggalLahir').value;
-        const usia = parseInt(document.getElementById('usia').value);
-        const tinggi = parseFloat(document.getElementById('tinggi').value);
-        const berat = parseFloat(document.getElementById('berat').value);
-        const perkembangan = document.getElementById('perkembangan').value;
-        const fotoFile = document.getElementById('foto').files[0]; 
-
-        let fotoBase64 = null; 
-
-        if (fotoFile) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                fotoBase64 = e.target.result;
-                simpan();
-            };
-            reader.readAsDataURL(fotoFile);
-        } else {
-            simpan();
-        } 
-
-        function simpan() {
-            data.push({ nama, tanggalLahir, usia, tinggi, berat, perkembangan, foto: fotoBase64 });
-            localStorage.setItem('anakData', JSON.stringify(data));
-            form.reset();
-            updateDisplay();
-        }
-    }); 
-
-    let chart; 
-
-    function updateDisplay() {
-        dataList.innerHTML = ""; 
-
-        let usiaLabels = [], tinggiData = [], beratData = []; 
-
-        data.forEach((item) => {
-            const card = document.createElement("div");
-            card.className = "data-card"; 
-
-            const img = document.createElement("img");
-            img.src = item.foto || "https://via.placeholder.com/120";
-            card.appendChild(img); 
-
-            const text = document.createElement("div");
-            text.innerHTML = `
-                <strong>${item.nama}</strong><br>
-                Usia: ${item.usia} bulan<br>
-                Tinggi: ${item.tinggi} cm - Berat: ${item.berat} kg<br>
-                <em>${item.perkembangan}</em>
-            `;
-            card.appendChild(text); 
-
-            dataList.appendChild(card); 
-
-            usiaLabels.push(item.usia);
-            tinggiData.push(item.tinggi);
-            beratData.push(item.berat);
-        }); 
-
-        if (chart) chart.destroy(); 
-
-        const ctx = document.getElementById("growthChart");
-        chart = new Chart(ctx, {
-            type: "line",
-            data: {
-                labels: usiaLabels,
-                datasets: [
-                    { label: "Tinggi (cm)", data: tinggiData, borderColor: "#3867d6", tension: 0.3 },
-                    { label: "Berat (kg)", data: beratData, borderColor: "#fa8231", tension: 0.3 }
-                ]
-            }
-        });
-    } 
-
-    updateDisplay();
-</script> 
-
+function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); }
+let data = JSON.parse(localStorage.getItem('growthData')) || [];
+const list = document.getElementById('listData');
+const form = document.getElementById('formData');
+let chart;
+form.addEventListener('submit',e=>{
+  e.preventDefault();
+  const file = document.getElementById('foto').files[0];
+  if(file){
+    const reader = new FileReader();
+    reader.onload = e=> saveData(e.target.result);
+    reader.readAsDataURL(file);
+  } else saveData(null);
+});
+function saveData(img){
+  const entry={
+    nama: nama.value,
+    tanggalLahir: tanggalLahir.value,
+    usia: parseInt(usia.value),
+    tinggi: parseFloat(tinggi.value),
+    berat: parseFloat(berat.value),
+    catatan: catatan.value,
+    foto: img
+  };
+  data.push(entry);
+  localStorage.setItem('growthData',JSON.stringify(data));
+  form.reset();
+  render();
+}
+function render(){
+  list.innerHTML="";
+  let usiaArr=[], tinggiArr=[], beratArr=[];
+  data.forEach(x=>{
+    const card=document.createElement('div');
+    card.className='data-card';
+    card.innerHTML=`
+      <img src="${x.foto || 'https://via.placeholder.com/130'}">
+      <div>
+        <strong>${x.nama}</strong><br>
+        Usia: ${x.usia} bulan<br>
+        Tinggi: ${x.tinggi} cm — Berat: ${x.berat} kg<br>
+        <em>${x.catatan || ''}</em>
+      </div>`;
+    list.appendChild(card);
+    usiaArr.push(x.usia);
+    tinggiArr.push(x.tinggi);
+    beratArr.push(x.berat);
+  });
+  if(chart) chart.destroy();
+  const ctx=document.getElementById('chartGrowth');
+  chart=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels: usiaArr,
+      datasets:[
+        {label:'Tinggi (cm)', data:tinggiArr, borderColor:'#5072e6', tension:0.3},
+        {label:'Berat (kg)', data:beratArr, borderColor:'#ff8c42', tension:0.3}
+      ]
+    }
+  });
+}
+render();
+</script>
 </body>
-  </html>
+</html>
