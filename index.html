@@ -225,7 +225,7 @@
                 fotoBase64 = e.target.result;
                 simpan();
             };
-            reader.readAsDataURL(fotoFile);
+            r eader.readAsDataURL(fotoFile);
         } else {
             simpan();
         }
@@ -256,7 +256,7 @@
             const text = document.createElement("div");
             text.innerHTML = `
                 <strong>${item.nama}</strong><br>
-                Usia: ${item.usia} bulan<br>
+                Usia: ${item.usia} tahun<br>
                 Tinggi: ${item.tinggi} cm - Berat: ${item.berat} kg<br>
                 <em>${item.perkembangan}</em>
             `;
