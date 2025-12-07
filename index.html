@@ -21,7 +21,7 @@
   --error: #ef4444; /* Tailwind red-500 */
   --warning: #f59e0b; /* Tailwind amber-500 */
 }
-*{box-sizing:border-box; font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial;} /* Terapkan font konsisten */
+*{box-sizing:border-box; font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial;} 
 html,body{height:100%;margin:0;color:#1f2937;background:var(--bg)}
 
 /* --- Sidebar --- */
@@ -213,21 +213,70 @@ button.ghost:hover{background:var(--primary-bg)}
 }
 
 
-/* --- Modal --- */
-.modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(0.9);z-index:200;background:#fff;padding:24px;border-radius:16px;box-shadow:0 20px 50px rgba(15,23,42,.25);width:360px;max-width:94vw;display:none;opacity:0;transition:opacity .3s ease, transform .3s cubic-bezier(0.175, 0.885, 0.32, 1.27)}
-.modal.open{display:block;opacity:1;transform:translate(-50%,-50%) scale(1)} /* Smooth fade-in and pop */
+/* --- Modal (Perbaikan Click Outside) --- */
+.modal{
+    position:fixed; 
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%) scale(0.9);
+    z-index:2000; 
+    background:#fff;
+    padding:24px;
+    border-radius:16px;
+    box-shadow:0 20px 50px rgba(15,23,42,.25);
+    width:360px;
+    max-width:94vw;
+    max-height: 90vh; 
+    overflow-y: auto;
+    opacity:0;
+    transition:opacity .3s ease, transform .3s cubic-bezier(0.175, 0.885, 0.32, 1.27); 
+    position: relative;
+    pointer-events: none; /* Awalnya tidak bisa di klik/diakses */
+} 
+.modal.open{
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1);
+    pointer-events: auto; 
+}
 .modal h4{margin:0 0 10px;font-size:18px}
 .modal #loginBlock, .modal #registerBlock { display: flex; flex-direction: column; gap: 8px;} 
 .modal-overlay {
-    position: fixed;
+    position: fixed; 
     inset: 0;
     background: rgba(0, 0, 0, 0.5);
-    z-index: 190;
+    z-index: 1999; 
     display: none;
+    opacity: 0;
+    transition: opacity .3s ease;
 }
-.modal.open ~ .modal-overlay {
+/* Menampilkan overlay hanya jika ada modal yang terbuka */
+.modal-overlay.show-overlay {
     display: block;
+    opacity: 1;
 }
+
+
+/* Close Button Style */
+.modal .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    color: var(--muted);
+    transition: color .2s ease;
+    z-index: 10;
+}
+.modal .close-btn:hover {
+    color: var(--error);
+    background: #f3f4f6;
+    border-radius: 50%;
+}
+
 
 /* Modal Detail Riwayat */
 #detailModal {
@@ -258,13 +307,13 @@ button.ghost:hover{background:var(--primary-bg)}
 /* --- Chart --- */
 .chart-box{height:350px;margin-top:10px} 
 
-/* --- Snackbar Notification (New) --- */
+/* --- Snackbar Notification --- */
 #snackbarContainer{
     position:fixed;
     bottom:20px;
     left:50%;
     transform:translateX(-50%);
-    z-index:1000;
+    z-index:3000; 
     width: 90%;
     max-width: 400px;
     pointer-events: none;
@@ -378,7 +427,7 @@ button.ghost:hover{background:var(--primary-bg)}
             </div>
       </div>
       
-      <div class="card content-section" id="inputSection">
+      <div class="card content-section" id="inputSection" style="display:none;">
         <h4>Input Data Perkembangan Anak</h4>
         <div class="data-small" id="whoInfo">Belum login</div>
 
@@ -404,9 +453,13 @@ button.ghost:hover{background:var(--primary-bg)}
       </div>
 
 
-      <div class="card content-section" id="chartCard" style="margin-top:20px">
+      <div class="card content-section" id="chartCard" style="margin-top:20px; display:none;">
         <h4>📈 Grafik Pertumbuhan Anak (vs. Standar WHO)</h4>
         <div id="growthStatus" class="status-badge">Data Tidak Lengkap</div>
+        <div id="recommendationArea" class="card" style="margin-top: 15px; padding: 15px; background: var(--primary-bg); border: 1px solid #dbeafe; display: none;">
+            <h5 style="margin: 0 0 10px; font-size: 16px; font-weight: 700; color: var(--primary);">Rekomendasi Kami:</h5>
+            <p id="recommendationText" style="margin: 0; font-size: 15px; line-height: 1.5; color: #1f2937;"></p>
+        </div>
         <div class="chart-box"><canvas id="growthChart" aria-label="Grafik pertumbuhan" role="img"></canvas></div>
         <div class="btn-group">
             <button id="btnExportCSV">📥 Ekspor Data (CSV)</button>
@@ -414,7 +467,8 @@ button.ghost:hover{background:var(--primary-bg)}
         </div>
       </div>
 
-      <div class="card content-section" id="aboutSection" style="margin-top:20px"> <h4>💡 Tentang FARESTA</h4>
+      <div class="card content-section" id="aboutSection" style="margin-top:20px">
+        <h4>💡 Tentang FARESTA</h4>
         <p style="line-height:1.6; font-size: 15px;">FARESTA membantu orang tua menyimpan catatan tumbuh kembang anak dan melihat grafik perkembangan. Data disimpan secara lokal di browser Anda (LocalStorage) sehingga aman dan cepat.</p>
       </div>
     </main>
@@ -429,6 +483,9 @@ button.ghost:hover{background:var(--primary-bg)}
 </div>
 
 <div id="authModal" class="modal" aria-hidden="true">
+  <button class="close-btn" onclick="closeModal(authModal)">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6L18 18"/></svg>
+  </button>
   <h4 id="authTitle">Login</h4>
   <div id="loginBlock">
     <input id="loginUser" placeholder="Username">
@@ -444,6 +501,9 @@ button.ghost:hover{background:var(--primary-bg)}
 </div>
 
 <div id="forgotPasswordModal" class="modal" aria-hidden="true">
+    <button class="close-btn" onclick="closeModal(forgotPasswordModal)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6L18 18"/></svg>
+    </button>
     <h4>Reset Password</h4>
     <div class="data-small" style="color: var(--error); margin-bottom: 10px; padding: 10px; border: 1px solid var(--error); border-radius: 8px;">
         ⚠️ **Peringatan:** Ini adalah aplikasi *client-side*. Tidak ada verifikasi email. Password akan langsung direset jika Username ditemukan.
@@ -457,6 +517,9 @@ button.ghost:hover{background:var(--primary-bg)}
 </div>
 
 <div id="manageChildModal" class="modal" aria-hidden="true">
+    <button class="close-btn" onclick="closeModal(manageChildModal)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6L18 18"/></svg>
+    </button>
     <h4>👶 Atur Anak</h4>
     <div id="childListManagement" style="max-height: 200px; overflow-y: auto; margin-bottom: 15px;">
         </div>
@@ -475,6 +538,9 @@ button.ghost:hover{background:var(--primary-bg)}
 </div>
 
 <div id="detailModal" class="modal" aria-hidden="true">
+    <button class="close-btn" onclick="closeModal(detailModal)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6L18 18"/></svg>
+    </button>
     <h4>Detail Riwayat <span id="detailChildName" style="color:var(--primary); font-size: 16px;"></span></h4>
     <div class="detail-field"><strong>Tanggal Input</strong><span id="detailTanggal"></span></div>
     <div class="detail-field"><strong>Usia</strong><span id="detailUsia"></span></div>
@@ -505,7 +571,7 @@ let currentUser = null;
 let currentRole = null; 
 let currentChildId = null; 
 
-// --- WHO GROWTH CHART DATA SIMULATED (Separated by Gender) ---
+// --- WHO GROWTH CHART DATA SIMULATED ---
 const WHO_SIMULATED_DATA = {
     // Berat-per-Tinggi (WFL) for quick status check (Simplified)
     wfl_simulation: {
@@ -767,6 +833,44 @@ function getGrowthStatus(height, weight, gender = 'male') {
     return { status, class: statusClass, median: medianWeight, heightUsed: nearestHeight };
 }
 
+// --- NEW: REKOMENDASI KONTEKSTUAL ---
+
+function getRecommendation(statusClass, gender, ageMonths) {
+    let title = 'Informasi Umum';
+    let text = 'Terus pantau tumbuh kembang anak secara berkala. Pastikan stimulasi sesuai usia dan nutrisi seimbang.';
+    // Tentukan kelompok usia
+    const ageGroup = ageMonths < 6 ? 'bayi_muda' : (ageMonths <= 24 ? 'batita' : 'balita');
+    
+    // Saran berdasarkan Status Gizi
+    if (statusClass === 'normal') {
+        title = 'Pertumbuhan Optimal';
+        text = `Pertahankan pola asuh dan nutrisi anak. Pada usia ini (${ageGroup}), fokus pada stimulasi motorik dan bahasa.`;
+    } else if (statusClass === 'underweight' || statusClass === 'severe') {
+        title = '⚠️ Perlu Perhatian Gizi';
+        text = `Anak terindikasi kekurangan gizi. Tingkatkan asupan makanan tinggi kalori dan protein (daging, telur, ikan). Konsultasikan segera dengan dokter atau ahli gizi.`;
+        if (ageGroup === 'batita') {
+             text += ` Pastikan MPASI adekuat dan berikan porsi makan kecil tapi sering.`;
+        }
+    } else if (statusClass === 'overweight') {
+        title = '⚠️ Perlu Perhatian Berat Badan';
+        text = `Anak terindikasi kelebihan berat badan. Tingkatkan aktivitas fisik dan batasi asupan makanan manis, lemak jenuh, dan makanan olahan.`;
+        if (ageGroup === 'batita') {
+            text += ` Berikan makanan seimbang dari sumber alami.`;
+        }
+    }
+    
+    // Saran Stimulasi Tambahan (Contoh Sederhana)
+    if (ageGroup === 'bayi_muda') {
+        text += ` Stimulasi: Lakukan Tummy Time setiap hari untuk melatih otot leher dan punggung.`;
+    } else if (ageGroup === 'batita') {
+        text += ` Stimulasi: Ajak anak berbicara, bernyanyi, dan bermain menyusun balok untuk melatih motorik halus.`;
+    }
+
+    return { title, text };
+}
+
+// --- END NEW: REKOMENDASI KONTEKSTUAL ---
+
 
 // --- VISIT COUNTER ---
 function countVisit() {
@@ -812,6 +916,13 @@ function showSnackbar(message, type = 'info') {
 }
 
 // --- MODAL & PREVIEW FUNCTIONS ---
+function isAnyModalOpen() {
+    return authModal.classList.contains('open') || 
+           manageChildModal.classList.contains('open') || 
+           detailModal.classList.contains('open') || 
+           forgotPasswordModal.classList.contains('open');
+}
+
 function openModal(modalEl) {
     // Tutup semua modal sebelum membuka yang baru
     [authModal, manageChildModal, detailModal, forgotPasswordModal].forEach(m => {
@@ -820,33 +931,46 @@ function openModal(modalEl) {
 
     modalEl.classList.add('open');
     modalEl.setAttribute('aria-hidden', 'false');
-    modalOverlay.style.display = 'block';
+    modalOverlay.classList.add('show-overlay'); 
+    
+    // Opsional: Sematkan body agar halaman di belakang tidak bisa di-scroll
+    document.body.style.overflow = 'hidden'; 
 }
 
 function closeModal(modalEl) {
     modalEl.classList.remove('open');
     modalEl.setAttribute('aria-hidden', 'true');
-    // Hanya sembunyikan overlay jika tidak ada modal lain yang terbuka
-    if (!authModal.classList.contains('open') && !manageChildModal.classList.contains('open') && !detailModal.classList.contains('open') && !forgotPasswordModal.classList.contains('open')) {
-        modalOverlay.style.display = 'none';
-    }
+    
+    // Hanya sembunyikan overlay jika TIDAK ADA modal lain yang sedang terbuka
+    setTimeout(() => {
+        if (!isAnyModalOpen()) {
+            modalOverlay.classList.remove('show-overlay');
+            document.body.style.overflow = ''; // Mengembalikan scroll body
+        }
+    }, 300); 
 }
 
+// EVENT LISTENER KRITIS UNTUK CLICK OUTSIDE MODAL
+document.querySelector('.modal-overlay').addEventListener('click', ()=>{ 
+    // Jika overlay modal diklik, tutup semua modal yang sedang terbuka
+    [authModal, manageChildModal, detailModal, forgotPasswordModal].forEach(m => {
+        if (m && m.classList.contains('open')) closeModal(m);
+    });
+});
+
+// EVENT LISTENER KRITIS UNTUK CLICK OUTSIDE SIDEBAR
 document.getElementById('overlay').addEventListener('click', ()=>{ 
     closeSidebar(); 
-    closeModal(authModal); 
-    closeModal(manageChildModal); 
-    closeModal(detailModal); 
-    closeModal(forgotPasswordModal); 
 });
+
 
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         if(authModal.classList.contains('open')) closeModal(authModal);
-        if(manageChildModal.classList.contains('open')) closeModal(manageChildModal);
-        if(detailModal.classList.contains('open')) closeModal(detailModal);
-        if(forgotPasswordModal.classList.contains('open')) closeModal(forgotPasswordModal);
-        if(sidebar.classList.contains('open')) closeSidebar();
+        else if(manageChildModal.classList.contains('open')) closeModal(manageChildModal);
+        else if(detailModal.classList.contains('open')) closeModal(detailModal);
+        else if(forgotPasswordModal.classList.contains('open')) closeModal(forgotPasswordModal);
+        else if(sidebar.classList.contains('open')) closeSidebar();
     }
 });
 
@@ -1108,24 +1232,36 @@ function hideAllSections() {
 
 function navigateTo(targetId) {
     hideAllSections();
+    let targetElement = null;
+
     if (targetId === 'home') {
         document.getElementById('inputSection').style.display = 'block';
         document.getElementById('chartCard').style.display = 'block';
         document.getElementById('aboutSection').style.display = 'block';
+        targetElement = document.getElementById('inputSection'); 
     } else if (targetId === 'imunisasi') {
         document.getElementById('imunisasiSection').style.display = 'block';
         renderImunisasiTable();
+        targetElement = document.getElementById('imunisasiSection');
     } else if (targetId === 'dashboard' && currentRole === 'admin') {
         document.getElementById('adminDashboard').style.display = 'block';
         renderAdminStats();
+        targetElement = document.getElementById('adminDashboard');
     } else if (targetId === 'about') { // Perbaikan navigasi 'Tentang'
         document.getElementById('aboutSection').style.display = 'block';
+        targetElement = document.getElementById('aboutSection');
     }
     
     // Smooth scroll ke section yang dituju
-    const targetElement = document.getElementById(targetId + 'Section') || document.getElementById(targetId);
     if (targetElement) {
-         targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+         // Cek apakah target elemen ada di viewport (untuk menghindari scrolling saat page load)
+         const container = document.querySelector('.container');
+         const targetRect = targetElement.getBoundingClientRect();
+         const containerRect = container.getBoundingClientRect();
+
+         if (targetRect.top < containerRect.top || targetRect.bottom > containerRect.bottom) {
+             targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+         }
     }
 
     closeSidebar();
@@ -1146,10 +1282,8 @@ function renderAllData() {
     imunisasiLink.style.display = (currentUser && currentRole === 'user') ? 'flex' : 'none';
     
     // Atur tampilan awal ke home
-    const activeSection = document.getElementById('mainContent').querySelector('.content-section[style*="block"]');
-    if (!activeSection) {
-        navigateTo(currentRole === 'admin' ? 'dashboard' : 'home');
-    }
+    // **PENTING: Memastikan halaman beranda (input dan chart) terlihat**
+    navigateTo(currentRole === 'admin' ? 'dashboard' : 'home');
 }
 
 function renderAuth(){ 
@@ -1245,7 +1379,7 @@ document.getElementById('btnSave').addEventListener('click', async ()=>{
       document.getElementById('catatan').value=''; 
   } catch (error) {
        showSnackbar('Terjadi kesalahan saat menyimpan data.', 'error');
-       console.error(error);
+       console.error('Save error:', error);
   } finally {
       // Hilangkan Loading State
       btnSave.disabled = false;
@@ -1325,6 +1459,7 @@ function renderChart(){
   try{
     const canvas = document.getElementById('growthChart');
     const statusEl = document.getElementById('growthStatus');
+    const recArea = document.getElementById('recommendationArea'); // Dapatkan elemen rekomendasi
     
     const existing = Chart.getChart(canvas);
     if(existing){ existing.destroy(); }
@@ -1335,6 +1470,7 @@ function renderChart(){
     if(!currentUser || currentRole === 'admin' || !currentChildId){
       statusEl.innerText = 'Data Tidak Tersedia';
       statusEl.className = 'status-badge'; 
+      recArea.style.display = 'none'; // Sembunyikan rekomendasi
       chart = new Chart(ctx, {
         type: 'line',
         data: { labels: ['0'], datasets: [ { label: 'Tinggi (cm)', data: [0], borderColor: '#d1d5db', tension: 0.4 } ] },
@@ -1361,6 +1497,7 @@ function renderChart(){
     if(!validData.length){
       statusEl.innerText = 'Belum ada data untuk anak ini';
       statusEl.className = 'status-badge';
+      recArea.style.display = 'none'; // Sembunyikan rekomendasi
       chart = new Chart(ctx, { 
         type: 'line',
         data: { labels: ['0'], datasets: [ { label: 'Tinggi (cm)', data: [0], borderColor: '#d1d5db', tension: 0.4 } ] },
@@ -1373,11 +1510,28 @@ function renderChart(){
       return;
     }
     
-    // Tampilkan status gizi terbaru
+    // Dapatkan data terbaru
     const latestEntry = validData[validData.length - 1];
     const statusResult = getGrowthStatus(latestEntry.tinggi, latestEntry.berat, gender);
+    const ageDetail = calculateAge(childData.dob); // Hitung usia saat ini
+
+    // 1. Tampilkan Status Terbaru
     statusEl.innerText = `Status Terbaru: ${statusResult.status} (Berdasarkan WHO ${gender==='male'?'Laki-laki':'Perempuan'})`;
     statusEl.className = `status-badge ${statusResult.class}`;
+
+    // 2. Tampilkan Rekomendasi
+    const recTextEl = document.getElementById('recommendationText');
+    if (validData.length > 0) {
+        const recommendation = getRecommendation(statusResult.class, gender, ageDetail.totalMonths);
+        
+        // Perbarui Judul dan Teks
+        recArea.querySelector('h5').innerText = recommendation.title;
+        recTextEl.innerText = recommendation.text;
+        recArea.style.display = 'block';
+    } else {
+        recArea.style.display = 'none';
+    }
+
 
     // --- SETUP DATASET GRAFIK ---
     const whoData = WHO_SIMULATED_DATA;
@@ -1653,4 +1807,4 @@ window.addEventListener('resize', ()=> {
 });
 </script>
 </body>
-</html>
+  </html>
